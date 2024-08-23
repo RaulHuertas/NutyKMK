@@ -1,6 +1,6 @@
 
 print("Starting on SHIRIR")
-
+import gc
 import board
 import busio
 from kmk.kmk_keyboard import KMKKeyboard
@@ -12,7 +12,7 @@ from kmk.modules.mouse_keys import MouseKeys
 from kmk.scanners.keypad import MatrixScanner
 
 from kmk.modules.pimoroni_trackball import Trackball
-
+gc.collect()
 col_pins = (board.P0_31,board.P0_29,board.P0_02,board.P1_15, board.P1_13,board.P1_11,)
 row_pins = (board.P0_10,board.P0_09,board.P1_07 ,board.P1_02,)
 
@@ -27,7 +27,7 @@ class NutyKeyboard(KMKKeyboard):
             # optional arguments with defaults:
             columns_to_anodes=diode_orientation,
             interval=0.020,  # Debounce time in floating point seconds
-            max_events=2
+            max_events=1
         )
 keyboard = NutyKeyboard()
 
@@ -60,7 +60,7 @@ trackball = Trackball(
     angle_offset=270,
     
 )
-trackball.set_rgbw(200, 0, 255, 0)
+trackball.set_rgbw(0, 0, 0, 100)
 
 keyboard.extensions.append(MediaKeys())
 # keyboard.extensions.append(rgb)
@@ -74,12 +74,24 @@ keyboard.modules = [
     #keyboard.modules.append(holdtap),
 ]
 
+keyboard.extensions = [
+    MediaKeys()
+]
+gc.collect()
 from keyAssignations import assignKeys
 keyboard.keymap = assignKeys()
 keyboard.debug_enabled = True
 keyboard.powersave_pin = board.P0_13
 
+del assignKeys
+del col_pins
+del row_pins
+del MatrixScanner
+del NutyKeyboard
+del Trackball
+
 if __name__ == '__main__':
+    gc.collect()
     #keyboard.go(hid_type=HIDModes.BLE)
     keyboard.go()
 

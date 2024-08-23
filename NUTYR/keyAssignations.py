@@ -14,12 +14,14 @@ class ESKeycodes:
     PLUS = KC.RBRACKET
     PIPE = KC.GRAVE 
     
-    
+goHome = KC.FD(0)
+noAssignation = KC.NO
+
 
 def assignKeys ():
     
     
-    layer0Asignations = [ KC.NO]*48
+    layer0Asignations = [ noAssignation]*48
     #return [layer0Asignations]
     #ROW0
     layer0Asignations[0] =  KC.TAB
@@ -73,12 +75,12 @@ def assignKeys ():
     layer0Asignations[42] =  KC.LGUI
     layer0Asignations[43] =  KC.ENTER
     layer0Asignations[44] =  KC.ESCAPE
-    layer0Asignations[45] =  KC.NO
-    layer0Asignations[46] =  KC.NO
-    layer0Asignations[47] =  KC.NO
+    layer0Asignations[45] =  noAssignation
+    layer0Asignations[46] =  noAssignation
+    layer0Asignations[47] =  noAssignation
 
 
-    layer1Asignations = [ KC.NO]*48
+    layer1Asignations = [ noAssignation]*48
     #ROW0
     layer1Asignations[0] =  KC.TAB
     layer1Asignations[1] =  KC.PSCREEN
@@ -123,34 +125,34 @@ def assignKeys ():
     layer1Asignations[34] =  KC.N5
     layer1Asignations[35] =  KC.FD(2)
     #ROW3
-    layer1Asignations[36] =  KC.NO
-    layer1Asignations[37] =  KC.NO
-    layer1Asignations[38] =  KC.NO
+    layer1Asignations[36] =  noAssignation
+    layer1Asignations[37] =  noAssignation
+    layer1Asignations[38] =  noAssignation
     layer1Asignations[39] =  KC.LALT
     layer1Asignations[40] =  KC.MO(2)
-    layer1Asignations[41] =  KC.FD(0)
+    layer1Asignations[41] =  goHome
 
     layer1Asignations[42] =  KC.LGUI
     layer1Asignations[43] =  KC.ENTER
     layer1Asignations[44] =  KC.APPLICATION
-    layer1Asignations[45] =  KC.NO
-    layer1Asignations[46] =  KC.NO
-    layer1Asignations[47] =  KC.NO
+    layer1Asignations[45] =  noAssignation
+    layer1Asignations[46] =  noAssignation
+    layer1Asignations[47] =  noAssignation
 
 
-    layer2Asignations = [ KC.NO]*48
+    layer2Asignations = [ noAssignation]*48
     #ROW0
     layer2Asignations[0] =  KC.TAB
     layer2Asignations[1] =  KC.PSCREEN
     layer2Asignations[2] =  KC.INSERT
     layer2Asignations[3] =  KC.HOME
     layer2Asignations[4] =  KC.PGUP
-    layer2Asignations[5] =  KC.NO
+    layer2Asignations[5] =  noAssignation
 
     layer2Asignations[6] =  KC.MB_LMB
     layer2Asignations[7] =  KC.MB_RMB
     layer2Asignations[8] =  KC.MB_MMB
-    layer2Asignations[9] =  KC.NO
+    layer2Asignations[9] =  noAssignation
     layer2Asignations[10] =  KC.AUDIO_MUTE
     layer2Asignations[11] =   KC.AUDIO_VOL_UP
     #ROW1
@@ -159,43 +161,43 @@ def assignKeys ():
     layer2Asignations[14] =  KC.DELETE
     layer2Asignations[15] =  KC.END
     layer2Asignations[16] =  KC.PGDOWN
-    layer2Asignations[17] =  KC.NO
+    layer2Asignations[17] =  noAssignation
 
     layer2Asignations[18] =  KC.MB_LMB
     layer2Asignations[19] =  KC.MB_RMB
     layer2Asignations[20] =  KC.MB_MMB
-    layer2Asignations[21] =  KC.NO
+    layer2Asignations[21] =  noAssignation
     layer2Asignations[22] =  KC.F2
     layer2Asignations[23] =   KC.AUDIO_VOL_DOWN
     
     #ROW2
     layer2Asignations[24] =  KC.LCTRL
-    layer2Asignations[25] =  KC.NO
-    layer2Asignations[26] =  KC.NO
-    layer2Asignations[27] =  KC.NO
-    layer2Asignations[28] = KC.NO
-    layer2Asignations[29] =  KC.NO
+    layer2Asignations[25] =  noAssignation
+    layer2Asignations[26] =  noAssignation
+    layer2Asignations[27] =  noAssignation
+    layer2Asignations[28] = noAssignation
+    layer2Asignations[29] =  noAssignation
 
     layer2Asignations[30] =  KC.F3
     layer2Asignations[31] =  KC.F4
     layer2Asignations[32] =  KC.F6
     layer2Asignations[33] =  KC.F7
     layer2Asignations[34] =  KC.F8
-    layer2Asignations[35] =  KC.FD(0)
+    layer2Asignations[35] =  goHome
     #ROW3
-    layer2Asignations[36] =  KC.NO
-    layer2Asignations[37] =  KC.NO
-    layer2Asignations[38] =  KC.NO
+    layer2Asignations[36] =  noAssignation
+    layer2Asignations[37] =  noAssignation
+    layer2Asignations[38] =  noAssignation
     layer2Asignations[39] =  KC.LALT
     layer2Asignations[40] =  KC.SPACE
-    layer2Asignations[41] =  KC.FD(0)
+    layer2Asignations[41] =  goHome
 
     layer2Asignations[42] =  KC.LGUI
     layer2Asignations[43] =  KC.ENTER
-    layer2Asignations[44] =  KC.FD(0)
-    layer2Asignations[45] =  KC.NO
-    layer2Asignations[46] =  KC.NO
-    layer2Asignations[47] =  KC.NO
+    layer2Asignations[44] =  goHome
+    layer2Asignations[45] =  noAssignation
+    layer2Asignations[46] =  noAssignation
+    layer2Asignations[47] =  noAssignation
 
 
     return  [
