@@ -12,6 +12,10 @@ from kmk.modules.mouse_keys import MouseKeys
 from kmk.scanners.keypad import MatrixScanner
 
 from kmk.modules.pimoroni_trackball import Trackball
+
+from kmk.hid import HIDModes
+
+
 gc.collect()
 col_pins = (board.P0_31,board.P0_29,board.P0_02,board.P1_15, board.P1_13,board.P1_11,)
 row_pins = (board.P0_10,board.P0_09,board.P1_07 ,board.P1_02,)
@@ -27,7 +31,7 @@ class NutyKeyboard(KMKKeyboard):
             # optional arguments with defaults:
             columns_to_anodes=diode_orientation,
             interval=0.020,  # Debounce time in floating point seconds
-            max_events=1
+            max_events=2
         )
 keyboard = NutyKeyboard()
 
@@ -45,12 +49,12 @@ keyboard.coord_mapping =  [
 split = Split(
     split_side=SplitSide.RIGHT,
     #split_side=None,
-    split_type=SplitType.UART,
+    split_type=SplitType.BLE,
     split_target_left=False,
     data_pin = board.P1_04,#RX
     data_pin2 = board.P1_06,#TX
     uart_flip = False,
-    debug_enabled = False
+    debug_enabled = True
 )
 
 i2c = busio.I2C(scl=board.P0_06, sda=board.P0_08)
@@ -92,7 +96,7 @@ del Trackball
 
 if __name__ == '__main__':
     gc.collect()
-    #keyboard.go(hid_type=HIDModes.BLE)
-    keyboard.go()
+    keyboard.go(hid_type=HIDModes.BLE)
+    #keyboard.go()
 
 
