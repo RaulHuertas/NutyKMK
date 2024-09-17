@@ -105,9 +105,9 @@ class Power(Module):
         '''
         Sleeps longer and longer to save power the more time in between updates.
         '''
-        if check_deadline(ticks_ms(), self._powersave_start, 30000):
-            sleep(20 / 1000)
-        elif check_deadline(ticks_ms(), self._powersave_start, 120000) is False:
+        if check_deadline(ticks_ms(), self._powersave_start, 60000):
+            sleep(8 / 1000)
+        elif check_deadline(ticks_ms(), self._powersave_start, 240000) is False:
             sleep(180 / 1000)
         return
 
