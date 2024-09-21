@@ -2,29 +2,75 @@
 print("Starting on NML")
 
 import board
-import busio
 from kmk.kmk_keyboard import KMKKeyboard
 from kmk.scanners import DiodeOrientation
-# from kmk.modules.splitBLE import SplitBLE, SplitSide 
 from kmk.modules.split import Split, SplitSide, SplitType
-import busio
 #from snKeycodes import ESKeycodes
-from kmk.extensions.media_keys import MediaKeys
-from keyAssignations import assignKeys
+
 from kmk.modules.layers import Layers
-from kmk.modules.mouse_keys import MouseKeys
 from kmk.scanners.keypad import MatrixScanner
 
+from kmk.extensions.rgb import RGB
 
-import board
-from kmk.hid import HIDModes
-
-from kmk.modules.power import Power
 
 #col_pins = (board.P0_17,board.P0_20,board.P0_22,board.P0_24, board.P1_00,board.P0_11,)
 col_pins = (board.D1,board.D2,board.D3,board.D4, board.D5,board.D6,)
 row_pins = (board.NFC1, board.NFC2, board.D7,board.D8,)
 
+
+class RGBController(RGB):
+    
+    def after_hid_send(self, sandbox):
+        super().after_hid_send(sandbox)  # Critically important. Do not forget
+
+    def during_bootup(self, keyboard):
+        super().during_bootup(keyboard)
+
+    def before_matrix_scan(self, keyboard):
+        super().before_matrix_scan(keyboard)
+        bLevel = self.br*0.8
+        self.set_rgb((bLevel*0, bLevel, bLevel*0), 0)
+        self.show() 
+        
+    def on_layer_change(self, layer):
+        onComb = (self.br,self.br*0, self.br)
+        offComb = (0, 0, 0)
+
+        if layer == 0:
+            self.set_rgb(offComb, 1)
+            self.set_rgb(offComb, 2)
+            self.set_rgb(offComb, 3)
+            self.set_rgb(offComb, 4)
+            self.set_rgb(offComb, 5)
+        elif layer == 1:
+            self.set_rgb(onComb, 1)
+            self.set_rgb(offComb, 2)
+            self.set_rgb(offComb, 3)
+            self.set_rgb(offComb, 4)
+            self.set_rgb(offComb, 5)
+        elif layer == 2:
+            self.set_rgb(onComb, 1)
+            self.set_rgb(onComb, 2)
+            self.set_rgb(offComb, 3)
+            self.set_rgb(offComb, 4)
+            self.set_rgb(offComb, 5)
+        elif layer == 3:
+            self.set_rgb(onComb, 1)
+            self.set_rgb(onComb, 2)
+            self.set_rgb(onComb, 3)
+            self.set_rgb(offComb, 4)
+            self.set_rgb(offComb, 5)
+        self.show()
+
+rgbController = RGBController(
+        pixel_pin=board.D0, # GPIO pin of the status LED, or background RGB light
+        num_pixels=6,                # one if status LED, more if background RGB light
+        rgb_order=(1, 0, 2),
+        hue_default=0,               # in range 0-255: 0/255-red, 85-green, 170-blue
+        sat_default=0,
+        val_default=0,
+        )
+rgbController.br = 3
 
 diode_orientation = DiodeOrientation.ROW2COL
 class MyKeyboard(KMKKeyboard):
@@ -62,21 +108,29 @@ split = Split(
     uart_flip = False,
     debug_enabled = False
 )
+class RGBLayers(Layers):
+        def __init__(self, rgbController):
+            Layers.__init__(self)
+            self.rgbC = rgbController      
 
-mediaKeys = MediaKeys()
-mouseKeys = MouseKeys()
-layers = Layers()
-power = Power()
+        def activate_layer(self, keyboard, layer, idx=None):
+            super().activate_layer(keyboard, layer, idx)
+            self.rgbC.on_layer_change(layer)
+
+        def deactivate_layer(self, keyboard, layer):
+            super().deactivate_layer(keyboard, layer)
+            self.rgbC.on_layer_change(keyboard.active_layers[0])
+        
+    
+rgbLayers = RGBLayers(rgbController )
 
 
 keyboard.extensions = [
-    mediaKeys
+    rgbController
 ]
 keyboard.modules = [
     split, 
-    layers, 
-    power,
-    mouseKeys
+    rgbLayers, 
     #keyboard.modules.append(holdtap),
 ]
 
@@ -91,6 +145,15 @@ keyboard.coord_mapping =  [
         42, 43, 44, 45, 46, 47,
     ]
 
+del Split
+del board
+del RGB
+del Layers
+del DiodeOrientation
+import gc
+gc.collect()
+
+from keyAssignations import assignKeys
 keyboard.keymap = assignKeys()
 
 keyboard.debug_enabled = True
