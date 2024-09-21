@@ -18,40 +18,53 @@ def initKB():
     import board    
     col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
+    #from kmk.extensions.lock_status import LockStatus
     
+    #locks = LockStatus()
+
     class RGBController(RGB):
         
+        
+        def after_hid_send(self, sandbox):
+            super().after_hid_send(sandbox)  # Critically important. Do not forget
+
+        def during_bootup(self, keyboard):
+            super().during_bootup(keyboard)
+
+        def before_matrix_scan(self, keyboard):
+            super().before_matrix_scan(keyboard)
+            bLevel = self.br*0.8
+            self.set_rgb((bLevel, bLevel, bLevel), 0)
+            self.show() 
+            
         def on_layer_change(self, layer):
-            # print("RAULLLLLLLActivating layer", layerArray)
-            # layer = layerArray[0]
+            onComb = (self.br,self.br*0, self.br)
+            offComb = (0, 0, 0)
+
             if layer == 0:
-                self.set_rgb((0, 0, 0), 0)
-                self.set_rgb((0, 0, 0), 1)
-                self.set_rgb((0, 0, 0), 2)
-                self.set_rgb((0, 0, 0), 3)
-                self.set_rgb((0, 0, 0), 4)
-                self.set_rgb((0, 0, 0), 5)
+                self.set_rgb(offComb, 1)
+                self.set_rgb(offComb, 2)
+                self.set_rgb(offComb, 3)
+                self.set_rgb(offComb, 4)
+                self.set_rgb(offComb, 5)
             elif layer == 1:
-                self.set_rgb((0, 0, 0), 0)
-                self.set_rgb((self.br, self.br, self.br), 1)
-                self.set_rgb((0, 0, 0), 2)
-                self.set_rgb((0, 0, 0), 3)
-                self.set_rgb((0, 0, 0), 4)
-                self.set_rgb((0, 0, 0), 5)
+                self.set_rgb(onComb, 1)
+                self.set_rgb(offComb, 2)
+                self.set_rgb(offComb, 3)
+                self.set_rgb(offComb, 4)
+                self.set_rgb(offComb, 5)
             elif layer == 2:
-                self.set_rgb((0, 0, 0), 0)
-                self.set_rgb((0, 0, 0), 1)
-                self.set_rgb((self.br, self.br, self.br), 2)
-                self.set_rgb((0, 0, 0), 3)
-                self.set_rgb((0, 0, 0), 4)
-                self.set_rgb((0, 0, 0), 5)
+                self.set_rgb(onComb, 1)
+                self.set_rgb(onComb, 2)
+                self.set_rgb(offComb, 3)
+                self.set_rgb(offComb, 4)
+                self.set_rgb(offComb, 5)
             elif layer == 3:
-                self.set_rgb((0, 0, 0), 0)
-                self.set_rgb((0, 0, 0), 1)
-                self.set_rgb((0, 0, 0), 2)
-                self.set_rgb((self.br, self.br, self.br), 3)
-                self.set_rgb((0, 0, 0), 4)
-                self.set_rgb((0, 0, 0), 5)
+                self.set_rgb(onComb, 1)
+                self.set_rgb(onComb, 2)
+                self.set_rgb(onComb, 3)
+                self.set_rgb(offComb, 4)
+                self.set_rgb(offComb, 5)
             self.show()
     
     rgbController = RGBController(
@@ -64,7 +77,7 @@ def initKB():
             )
     
 
-    rgbController.br = 25
+    rgbController.br = 3
 
     diode_orientation = DiodeOrientation.ROW2COL
     class MyKeyboard(KMKKeyboard):
@@ -77,7 +90,7 @@ def initKB():
                 # optional arguments with defaults:
                 columns_to_anodes=diode_orientation,
                 interval=0.020,  # Debounce time in floating point seconds
-                max_events=8
+                max_events=4
             )
     keyboard = MyKeyboard()
 
@@ -116,17 +129,16 @@ def initKB():
         def deactivate_layer(self, keyboard, layer):
             super().deactivate_layer(keyboard, layer)
             self.rgbC.on_layer_change(keyboard.active_layers[0])
-
+        
     
     from kmk.extensions.media_keys import MediaKeys 
-    #from kmk.modules.midi import MidiKeys
-    #midiKeys = MidiKeys()
     mouseKeys = MouseKeys()
     mediaKeys = MediaKeys()
     rgbLayers = RGBLayers(rgbController )
     keyboard.extensions = [
         mediaKeys,
         rgbController,
+        #locks
     ]
     keyboard.modules = [
         split, 
@@ -164,5 +176,5 @@ if __name__ == '__main__':
     
     kb = initKB()
     
-    kb.debug_enabled = False
+    kb.debug_enabled = True
     kb.go()
