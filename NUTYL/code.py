@@ -12,7 +12,7 @@ import busio
 from kmk.extensions.media_keys import MediaKeys
 from keyAssignations import assignKeys
 from kmk.modules.layers import Layers
-# from kmk.modules.mouse_keys import MouseKeys
+from kmk.modules.mouse_keys import MouseKeys
 from kmk.scanners.keypad import MatrixScanner
 
 
@@ -64,10 +64,9 @@ split = Split(
 )
 
 mediaKeys = MediaKeys()
-mouseKeys = Layers()
+mouseKeys = MouseKeys()
 layers = Layers()
 power = Power()
-keyboard.keymap = assignKeys()
 
 
 keyboard.extensions = [
@@ -81,8 +80,20 @@ keyboard.modules = [
     #keyboard.modules.append(holdtap),
 ]
 
+keyboard.coord_mapping =  [
+        0,  1,  2,  3,  4,  5, 
+        24, 25, 26, 27, 28, 29,
+        6,  7,  8,  9, 10, 11,
+        30, 31, 32, 33, 34, 35,
+        12, 13, 14, 15, 16, 17,
+        36, 37, 38, 39, 40, 41,
+        18, 19, 20, 21, 22, 23 ,
+        42, 43, 44, 45, 46, 47,
+    ]
 
-keyboard.debug_enabled = False
+keyboard.keymap = assignKeys()
+
+keyboard.debug_enabled = True
 #keyboard.powersave_enable()
 print("Starting on NML now")
 if __name__ == '__main__':
