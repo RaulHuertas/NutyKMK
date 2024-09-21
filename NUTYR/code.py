@@ -1,6 +1,5 @@
 
-print("Starting on NRF Right")
-
+print("NutyMiniR")
 
 
 def initKB():
@@ -16,6 +15,8 @@ def initKB():
     from kmk.extensions.rgb import RGB
     from kmk.modules.layers import Layers
     import board    
+    from time import monotonic
+    from math import modf
     col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
     #from kmk.extensions.lock_status import LockStatus
@@ -33,8 +34,18 @@ def initKB():
 
         def before_matrix_scan(self, keyboard):
             super().before_matrix_scan(keyboard)
-            bLevel = self.br*0.8
-            self.set_rgb((bLevel, bLevel, bLevel), 0)
+            
+            tl = monotonic()
+            tl = tl/2.0#blink period
+            #print("before matrix scan")
+            actLED = modf(tl)[0]>0.7 #off cycle
+            #actLED = True
+            #print("threshold: " +str(actLED))
+            if actLED :
+                bLevel = self.br
+                self.set_rgb((bLevel*0, bLevel, bLevel*0), 0)
+            else:
+                self.set_rgb((0, 0, 0), 0)
             self.show() 
             
         def on_layer_change(self, layer):
@@ -176,5 +187,5 @@ if __name__ == '__main__':
     
     kb = initKB()
     
-    kb.debug_enabled = True
+    kb.debug_enabled = False
     kb.go()
