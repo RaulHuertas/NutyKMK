@@ -1,14 +1,13 @@
-
-print("NutyMiniR")
-
-
 def initKB():
     
     from kmk.extensions.media_keys import MediaKeys
     from kmk.modules.mouse_keys import MouseKeys
-    from kmk.modules.split import Split, SplitSide,SplitType
+    #from kmk.modules.split import Split
+    from kmk.modules.spUart import SplitUART, SplitSide
+    #from kmk.modules.split import Split, SplitSide,SplitType
     
-    from kmk.kmk_keyboard import KMKKeyboard
+    #from kmk.kmk_keyboard import KMKKeyboard
+    from kmk.kmk_kbUART import KMKKBUART as KMKKeyboard
     from kmk.scanners import DiodeOrientation
 
     from kmk.scanners.keypad import MatrixScanner
@@ -19,35 +18,52 @@ def initKB():
     from math import modf
     col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
-    #from kmk.extensions.lock_status import LockStatus
-    
-    #locks = LockStatus()
 
     class RGBController(RGB):
         
-        
         def after_hid_send(self, sandbox):
             super().after_hid_send(sandbox)  # Critically important. Do not forget
-
-        def during_bootup(self, keyboard):
-            super().during_bootup(keyboard)
-
-        def before_matrix_scan(self, keyboard):
-            super().before_matrix_scan(keyboard)
             
-            tl = monotonic()
-            tl = tl/2.0#blink period
-            #print("before matrix scan")
-            actLED = modf(tl)[0]>0.7 #off cycle
-            #actLED = True
-            #print("threshold: " +str(actLED))
-            if actLED :
+
+        def during_bootup(self, sandbox):
+            super().during_bootup(sandbox)
+
+        def before_matrix_scan(self, sandbox):
+            super().before_matrix_scan(sandbox)
+            #update on LED    
+            nowT = monotonic()
+            tl = nowT/2.0#blink period
+            onLED = modf(tl)[0]>0.7 #off cycle
+            if onLED :
                 bLevel = self.br
                 self.set_rgb((bLevel*0, bLevel, bLevel*0), 0)
             else:
                 self.set_rgb((0, 0, 0), 0)
-            self.show() 
-            
+
+
+            if((nowT-self.startTime)>1):#update wmpHigh
+                self.startTime = nowT
+                wpmHighTH = 8##threshold for what high wpm is
+                if(self.wpmC>wpmHighTH):
+                    self.wpmHigh = True
+                else:
+                    self.wpmHigh = False
+                #print(self.wpmC)
+                #print(self.wpmHigh)
+                self.wpmC = 0
+                
+                if(self.wpmHigh):
+                    self.set_rgb((0, 0, self.br), 5)
+                else:
+                    self.set_rgb((0,0,0), 5)
+                self.show()
+
+        def after_matrix_scan(self, sandbox):
+            super().after_matrix_scan(sandbox)
+
+        def incrWPM(self, inc):
+            self.wpmC = self.wpmC + inc
+        
         def on_layer_change(self, layer):
             onComb = (self.br,self.br*0, self.br)
             offComb = (0, 0, 0)
@@ -57,25 +73,21 @@ def initKB():
                 self.set_rgb(offComb, 2)
                 self.set_rgb(offComb, 3)
                 self.set_rgb(offComb, 4)
-                self.set_rgb(offComb, 5)
             elif layer == 1:
                 self.set_rgb(onComb, 1)
                 self.set_rgb(offComb, 2)
                 self.set_rgb(offComb, 3)
                 self.set_rgb(offComb, 4)
-                self.set_rgb(offComb, 5)
             elif layer == 2:
                 self.set_rgb(onComb, 1)
                 self.set_rgb(onComb, 2)
                 self.set_rgb(offComb, 3)
                 self.set_rgb(offComb, 4)
-                self.set_rgb(offComb, 5)
             elif layer == 3:
                 self.set_rgb(onComb, 1)
                 self.set_rgb(onComb, 2)
                 self.set_rgb(onComb, 3)
                 self.set_rgb(offComb, 4)
-                self.set_rgb(offComb, 5)
             self.show()
     
     rgbController = RGBController(
@@ -87,7 +99,9 @@ def initKB():
             val_default=0,
             )
     
-
+    rgbController.startTime = monotonic()  
+    rgbController.wpmC = 0
+    rgbController.wpmHigh = False
     rgbController.br = 3
 
     diode_orientation = DiodeOrientation.ROW2COL
@@ -117,15 +131,14 @@ def initKB():
         42, 43, 44, 45, 46, 47,
     ]
 
-    split = Split(
+    split = SplitUART(
         split_side=SplitSide.RIGHT,
-        #split_side=None,
-        split_type=SplitType.UART,
+        #split_type=SplitType.UART,
         split_target_left=False,
         data_pin = board.D5,#RX
         data_pin2 = board.D6,#TX
         uart_flip = False,
-        debug_enabled = False
+        debug_enabled = True
     )
     
     class RGBLayers(Layers):
@@ -140,7 +153,21 @@ def initKB():
         def deactivate_layer(self, keyboard, layer):
             super().deactivate_layer(keyboard, layer)
             self.rgbC.on_layer_change(keyboard.active_layers[0])
-        
+
+        # def after_matrix_scan(self, keyboard):
+        #     #return
+        #     #print(dir(keyboard))
+        #     super().after_matrix_scan(keyboard)
+        #     #if keyboard.matrix_update :
+        #     #    self.rgbC.incrWPM(1)            
+        def before_hid_send(self, keyboard):
+            super().before_hid_send(keyboard)
+            if keyboard.hid_pending:
+                self.rgbC.incrWPM(1)     
+        def after_hid_send(self, keyboard):
+            super().after_hid_send(keyboard)
+            #self.rgbC.incrWPM(1)            
+            
     
     from kmk.extensions.media_keys import MediaKeys 
     mouseKeys = MouseKeys()
@@ -160,7 +187,8 @@ def initKB():
         rgbLayers,
     ]
     
-    del Split
+    del SplitUART
+    #del Split
     del board
     del RGB
     del Layers
@@ -187,5 +215,6 @@ if __name__ == '__main__':
     
     kb = initKB()
     
-    kb.debug_enabled = False
+    kb.debug_enabled = True
+    
     kb.go()
