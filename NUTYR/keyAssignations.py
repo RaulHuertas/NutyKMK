@@ -3,16 +3,16 @@ from kmk.keys import KC
 
 def assignKeys ():
     kc = KC
-    NTIL = KC.SCOLON
-    OPENING_QUESTION_MARK  = KC.EQUAL
-    QUOTE  = KC.MINUS
-    OPENING_BRAQUETS  = KC.QUOTE    
-    CLOSING_BRAQUETS  = KC.NONUS_HASH 
-    LESSER_GREATER = KC.NUBS
-    TILDE_DIERESIS = KC.LBRACKET
-    PLUS = KC.RBRACKET
-    PIPE = KC.GRAVE 
-    space = KC.SPACE
+    NTIL = kc.SCOLON
+    OPENING_QUESTION_MARK  = kc.EQUAL
+    QUOTE  = kc.MINUS
+    OPENING_BRAQUETS  = kc.QUOTE    
+    CLOSING_BRAQUETS  = kc.NONUS_HASH 
+    LESSER_GREATER = kc.NUBS
+    TILDE_DIERESIS = kc.LBRACKET
+    PLUS = kc.RBRACKET
+    PIPE = kc.GRAVE 
+    space = kc.SPACE
     goHome = kc.FD(0)
     noAsg = kc.NO
     lShift = kc.LSHIFT

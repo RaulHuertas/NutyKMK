@@ -32,8 +32,8 @@ def initKB():
             super().before_matrix_scan(sandbox)
             #update on LED    
             nowT = monotonic()
-            tl = nowT/2.0#blink period
-            onLED = modf(tl)[0]>0.7 #off cycle
+            tl = (nowT)/1.5#blink period
+            onLED = modf(tl)[0]>0.8 #off cycle
             if onLED :
                 bLevel = self.br
                 self.set_rgb((bLevel*0, bLevel, bLevel*0), 0)
@@ -62,7 +62,7 @@ def initKB():
             super().after_matrix_scan(sandbox)
 
         def incrWPM(self, inc):
-            self.wpmC = self.wpmC + inc
+            self.wpmC +=  inc
         
         def on_layer_change(self, layer):
             onComb = (self.br,self.br*0, self.br)
@@ -138,7 +138,7 @@ def initKB():
         data_pin = board.D5,#RX
         data_pin2 = board.D6,#TX
         uart_flip = False,
-        debug_enabled = True
+        debug_enabled = False
     )
     
     class RGBLayers(Layers):
@@ -215,6 +215,6 @@ if __name__ == '__main__':
     
     kb = initKB()
     
-    kb.debug_enabled = True
+    kb.debug_enabled = False
     
     kb.go()
