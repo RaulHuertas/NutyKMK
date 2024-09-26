@@ -1,10 +1,18 @@
+GREEN = (0, 255, 0)
+OFF = (0, 0, 0)
+BLUE = (0, 0, 85)
+ORANGE = (234,133,51)
+
+PURPLE = (180, 0, 255)
+
+
 def initKB():
     
     from kmk.extensions.media_keys import MediaKeys
     from kmk.modules.mouse_keys import MouseKeys
     from kmk.modules.spUart import SplitUART, SplitSide
     
-    from kmk.kmk_kbUART import KMKKBUART as KMKKeyboard
+    from kmk.usbkb import USBKB 
     from kmk.scanners import DiodeOrientation
 
     from kmk.scanners.keypad import MatrixScanner
@@ -20,7 +28,7 @@ def initKB():
 
 
     diode_orientation = DiodeOrientation.ROW2COL
-    class MyKeyboard(KMKKeyboard):
+    class MyKeyboard(USBKB):
         def __init__(self):            
             # create and register the scanner
             self.matrix = MatrixScanner(
@@ -29,8 +37,8 @@ def initKB():
                 row_pins=row_pins,
                 # optional arguments with defaults:
                 columns_to_anodes=diode_orientation,
-                interval=0.020,  # Debounce time in floating point seconds
-                max_events=4
+                interval=0.019,  # Debounce time in floating point seconds
+                max_events=3
             )
     keyboard = MyKeyboard()
 
@@ -82,7 +90,7 @@ def initKB():
         def incrWPM(self, inc=1):
             self.wpmC +=  inc
 
-        def resetWPM(self, inc):
+        def resetWPM(self):
             self.wpmC = 0
             
 
@@ -101,7 +109,7 @@ def initKB():
             pulsePosition = (nowT)/1.0 #blink period
             pulseOn = modf(pulsePosition)[0]>0.5 #off cycle
             pulseHighPosition = (nowT)/0.6 #blink period
-            pulseHighOn = modf(pulseHighPosition)[0]>0.2 #off cycle
+            pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
             #wpmHigh
             if((nowT-self.startTime)>1):#update wmpHigh
                 self.startTime = nowT
@@ -110,14 +118,11 @@ def initKB():
                     self.wpmHigh = True
                 else:
                     self.wpmHigh = False
-                self.wpmC = 0
+                self.resetWPM()
 
 
             #led status
-            GREEN = (0, 255, 0)
-            OFF = (0, 0, 0)
-            BLUE = (0, 0, 85)
-            ORANGE = (234,133,51)
+            
             if pulseOn :
                 self.rgbStrip[1] = GREEN
             else:
@@ -130,8 +135,6 @@ def initKB():
 
 
             #####BOARD LEDS
-            PURPLE = (180, 0, 255)
-            OFF = (0, 0,0)
             #print(layer)
             if self.currentLayer == 0:
                 self.rgbStrip[2] = PURPLE
@@ -194,20 +197,16 @@ def initKB():
     from kmk.extensions.media_keys import MediaKeys 
     mouseKeys = MouseKeys()
     mediaKeys = MediaKeys()
-    rgbLayers = RGBLayers(board.D0, 0.05 )
+    rgbLayers = RGBLayers(board.D0, 0.03 )
     midi = MidiKeys()
     #keyboard.modules.append()
 
     keyboard.extensions = [
         mediaKeys,
-        #locks
     ]
     keyboard.modules = [
         split, 
-        #Layers(), 
-        #Power(),
         mouseKeys,
-        #midiKeys,
         rgbLayers,
         midi,
     ]
