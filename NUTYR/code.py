@@ -1,10 +1,11 @@
 GREEN = (0, 255, 0)
 OFF = (0, 0, 0)
-BLUE = (0, 0, 85)
+BLUE = (0, 0, 255)
 ORANGE = (234,133,51)
-
+RED = (255, 0, 0)
 PURPLE = (180, 0, 255)
-
+WHITE = (255, 255, 255)
+YELLOW = (255, 255, 0)
 
 def initKB():
     
@@ -22,6 +23,9 @@ def initKB():
     from math import modf
     from kmk.modules.midi import MidiKeys
     from kmk.keys import ConsumerKey, make_key
+
+
+    import pwmio
 
     col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
@@ -77,8 +81,10 @@ def initKB():
             self.startTime = monotonic()
             
             from digitalio import DigitalInOut, Direction
-            self.redLED = DigitalInOut(board.LED_RED)
-            self.redLED.direction = Direction.OUTPUT
+            #self.redLED = DigitalInOut(board.LED_RED)
+            #self.redLED.direction = Direction.OUTPUT
+            self.redLED = pwmio.PWMOut(board.LED_RED, frequency=5000, duty_cycle=0)
+
             self.greenLED = DigitalInOut(board.LED_GREEN)
             self.greenLED.direction = Direction.OUTPUT
             self.blueLED = DigitalInOut(board.LED_BLUE)
@@ -127,8 +133,8 @@ def initKB():
             
             nowT = monotonic()
             #blink pulse             
-            pulsePosition = (nowT)/1.0 #blink period
-            pulseOn = modf(pulsePosition)[0]>0.5 #off cycle
+            pulsePosition = (nowT)/2.0 #blink period
+            pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
             pulseHighPosition = (nowT)/0.6 #blink period
             pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
             #wpmHigh
@@ -145,32 +151,34 @@ def initKB():
             #led status
             
             if pulseOn :
-                self.rgbStrip[1] = GREEN
+                self.rgbStrip[1] = BLUE
             else:
                 self.rgbStrip[1] = OFF
             #led high wpm
             if self.wpmHigh and pulseHighOn :
                 self.rgbStrip[0] = ORANGE
             else:
-                self.rgbStrip[0] = BLUE
+                self.rgbStrip[0] = YELLOW
 
 
             #####BOARD LEDS
             #print(layer)
+            dtcyc = 10000
+            dtcycOff = 65535
             if self.currentLayer == 0:
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = OFF
                 self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
-                self.redLED.value = not (True and pulseHighOn)
-                self.greenLED.value = not (False and pulseHighOn)
-                self.blueLED.value = not (False and pulseHighOn)
+                self.redLED.duty_cycle = dtcyc
+                self.greenLED.value = not (False )
+                self.blueLED.value = not (False )
             elif self.currentLayer == 1:
-                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[2] = PURPLE 
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
-                self.redLED.value = not (False )
+                self.redLED.duty_cycle = dtcycOff
                 self.greenLED.value = not (True )
                 self.blueLED.value = not (False )
             elif self.currentLayer == 2:
@@ -178,7 +186,7 @@ def initKB():
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = PURPLE
                 self.rgbStrip[5] = OFF
-                self.redLED.value = not (False )
+                self.redLED.duty_cycle = dtcycOff
                 self.greenLED.value = not (False )
                 self.blueLED.value = not (True )
             elif self.currentLayer == 3:
@@ -186,7 +194,8 @@ def initKB():
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = PURPLE
                 self.rgbStrip[5] = PURPLE
-                self.redLED.value = not (True )
+                
+                self.redLED.duty_cycle = dtcyc
                 self.greenLED.value = not (True )
                 self.blueLED.value = not (True )
 
@@ -213,7 +222,6 @@ def initKB():
             
 
 
-           
     
     from kmk.extensions.media_keys import MediaKeys 
     mouseKeys = MouseKeys()
