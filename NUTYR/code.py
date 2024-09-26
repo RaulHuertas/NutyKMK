@@ -102,20 +102,20 @@ def initKB():
                 self.wpmC = 0
 
 
-            #led 0
+            #led status
             GREEN = (0, 255, 0)
             OFF = (0, 0, 0)
-            BLUE = (0, 0, 255)
+            BLUE = (0, 0, 85)
             ORANGE = (234,133,51)
             if pulseOn :
-                self.rgbStrip[0] = GREEN
+                self.rgbStrip[1] = GREEN
             else:
-                self.rgbStrip[0] = OFF
-            #led 5
+                self.rgbStrip[1] = OFF
+            #led high wpm
             if self.wpmHigh and pulseHighOn :
-                self.rgbStrip[5] = ORANGE
+                self.rgbStrip[0] = ORANGE
             else:
-                self.rgbStrip[5] = BLUE
+                self.rgbStrip[0] = BLUE
 
         def after_matrix_scan(self, keyboard):
             super().after_matrix_scan(keyboard)
@@ -134,25 +134,25 @@ def initKB():
             OFF = (0, 0, 0)
             print(layer)
             if layer == 0:
-                self.rgbStrip[1] = PURPLE
-                self.rgbStrip[2] = OFF
-                self.rgbStrip[3] = OFF
-                self.rgbStrip[4] = OFF
-            elif layer == 1:
-                self.rgbStrip[1] = PURPLE
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = OFF
                 self.rgbStrip[4] = OFF
-            elif layer == 2:
-                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[5] = OFF
+            elif layer == 1:
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = OFF
-            elif layer == 3:
-                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[5] = OFF
+            elif layer == 2:
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = PURPLE
+                self.rgbStrip[5] = OFF
+            elif layer == 3:
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = PURPLE
+                self.rgbStrip[5] = PURPLE
     
     from kmk.extensions.media_keys import MediaKeys 
     mouseKeys = MouseKeys()
