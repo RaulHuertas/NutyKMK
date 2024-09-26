@@ -2,107 +2,23 @@ def initKB():
     
     from kmk.extensions.media_keys import MediaKeys
     from kmk.modules.mouse_keys import MouseKeys
-    #from kmk.modules.split import Split
     from kmk.modules.spUart import SplitUART, SplitSide
-    #from kmk.modules.split import Split, SplitSide,SplitType
     
-    #from kmk.kmk_keyboard import KMKKeyboard
     from kmk.kmk_kbUART import KMKKBUART as KMKKeyboard
     from kmk.scanners import DiodeOrientation
 
     from kmk.scanners.keypad import MatrixScanner
-    from kmk.extensions.rgb import RGB
     from kmk.modules.layers import Layers
     import board    
     from time import monotonic
     from math import modf
+    from kmk.modules.midi import MidiKeys
+
+
     col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
 
-    class RGBController(RGB):
-        
-        def after_hid_send(self, sandbox):
-            super().after_hid_send(sandbox)  # Critically important. Do not forget
-            
 
-        def during_bootup(self, sandbox):
-            super().during_bootup(sandbox)
-
-        def before_matrix_scan(self, sandbox):
-            super().before_matrix_scan(sandbox)
-            #update on LED    
-            nowT = monotonic()
-            tl = (nowT)/1.5#blink period
-            onLED = modf(tl)[0]>0.8 #off cycle
-            if onLED :
-                bLevel = self.br
-                self.set_rgb((bLevel*0, bLevel, bLevel*0), 0)
-            else:
-                self.set_rgb((0, 0, 0), 0)
-
-
-            if((nowT-self.startTime)>1):#update wmpHigh
-                self.startTime = nowT
-                wpmHighTH = 8##threshold for what high wpm is
-                if(self.wpmC>wpmHighTH):
-                    self.wpmHigh = True
-                else:
-                    self.wpmHigh = False
-                #print(self.wpmC)
-                #print(self.wpmHigh)
-                self.wpmC = 0
-                
-                if(self.wpmHigh):
-                    self.set_rgb((0, 0, self.br), 5)
-                else:
-                    self.set_rgb((0,0,0), 5)
-                self.show()
-
-        def after_matrix_scan(self, sandbox):
-            super().after_matrix_scan(sandbox)
-
-        def incrWPM(self, inc):
-            self.wpmC +=  inc
-        
-        def on_layer_change(self, layer):
-            onComb = (self.br,self.br*0, self.br)
-            offComb = (0, 0, 0)
-
-            if layer == 0:
-                self.set_rgb(offComb, 1)
-                self.set_rgb(offComb, 2)
-                self.set_rgb(offComb, 3)
-                self.set_rgb(offComb, 4)
-            elif layer == 1:
-                self.set_rgb(onComb, 1)
-                self.set_rgb(offComb, 2)
-                self.set_rgb(offComb, 3)
-                self.set_rgb(offComb, 4)
-            elif layer == 2:
-                self.set_rgb(onComb, 1)
-                self.set_rgb(onComb, 2)
-                self.set_rgb(offComb, 3)
-                self.set_rgb(offComb, 4)
-            elif layer == 3:
-                self.set_rgb(onComb, 1)
-                self.set_rgb(onComb, 2)
-                self.set_rgb(onComb, 3)
-                self.set_rgb(offComb, 4)
-            self.show()
-    
-    rgbController = RGBController(
-            pixel_pin=board.D0, # GPIO pin of the status LED, or background RGB light
-            num_pixels=6,                # one if status LED, more if background RGB light
-            rgb_order=(1, 0, 2),
-            hue_default=0,               # in range 0-255: 0/255-red, 85-green, 170-blue
-            sat_default=0,
-            val_default=0,
-            )
-    
-    rgbController.startTime = monotonic()  
-    rgbController.wpmC = 0
-    rgbController.wpmHigh = False
-    rgbController.br = 3
 
     diode_orientation = DiodeOrientation.ROW2COL
     class MyKeyboard(KMKKeyboard):
@@ -142,40 +58,111 @@ def initKB():
     )
     
     class RGBLayers(Layers):
-        def __init__(self, rgbController):
+        def __init__(self, pin, brightness=0.2):
             Layers.__init__(self)
-            self.rgbC = rgbController      
+            self.br =brightness
+            from neopixel import NeoPixel
+            self.rgbStrip =  NeoPixel(pin, 6,brightness=self.br)      
+            self.wpmC = 0
+            self.wpmHigh = False
+            
+            self.startTime = monotonic()
+        
+        def incrWPM(self, inc=1):
+            self.wpmC +=  inc
+
+        def resetWPM(self, inc):
+            self.wpmC = 0
+            
 
         def activate_layer(self, keyboard, layer, idx=None):
             super().activate_layer(keyboard, layer, idx)
-            self.rgbC.on_layer_change(layer)
+            self.on_layer_change(layer)
 
         def deactivate_layer(self, keyboard, layer):
             super().deactivate_layer(keyboard, layer)
-            self.rgbC.on_layer_change(keyboard.active_layers[0])
+            self.on_layer_change(keyboard.active_layers[0])
 
-        # def after_matrix_scan(self, keyboard):
-        #     #return
-        #     #print(dir(keyboard))
-        #     super().after_matrix_scan(keyboard)
-        #     #if keyboard.matrix_update :
-        #     #    self.rgbC.incrWPM(1)            
+        def before_matrix_scan(self, sandbox):
+            super().before_matrix_scan(sandbox)
+            nowT = monotonic()
+            #blink pulse             
+            pulsePosition = (nowT)/2.0 #blink period
+            pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
+            pulseHighPosition = (nowT)/0.6 #blink period
+            pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
+            #wpmHigh
+            if((nowT-self.startTime)>1):#update wmpHigh
+                self.startTime = nowT
+                wpmHighTH = 11##threshold for what high wpm is
+                if(self.wpmC>wpmHighTH):
+                    self.wpmHigh = True
+                else:
+                    self.wpmHigh = False
+                self.wpmC = 0
+
+
+            #led 0
+            GREEN = (0, 255, 0)
+            OFF = (0, 0, 0)
+            BLUE = (0, 0, 255)
+            ORANGE = (234,133,51)
+            if pulseOn :
+                self.rgbStrip[0] = GREEN
+            else:
+                self.rgbStrip[0] = OFF
+            #led 5
+            if self.wpmHigh and pulseHighOn :
+                self.rgbStrip[5] = ORANGE
+            else:
+                self.rgbStrip[5] = BLUE
+
+        def after_matrix_scan(self, keyboard):
+            super().after_matrix_scan(keyboard)
+            
+
         def before_hid_send(self, keyboard):
             super().before_hid_send(keyboard)
             if keyboard.hid_pending:
-                self.rgbC.incrWPM(1)     
+                self.incrWPM(1)     
         def after_hid_send(self, keyboard):
             super().after_hid_send(keyboard)
-            #self.rgbC.incrWPM(1)            
+
+        def on_layer_change(self, layer):
             
+            PURPLE = (180, 0, 255)
+            OFF = (0, 0, 0)
+            print(layer)
+            if layer == 0:
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = OFF
+                self.rgbStrip[3] = OFF
+                self.rgbStrip[4] = OFF
+            elif layer == 1:
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = OFF
+                self.rgbStrip[4] = OFF
+            elif layer == 2:
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = OFF
+            elif layer == 3:
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = PURPLE
     
     from kmk.extensions.media_keys import MediaKeys 
     mouseKeys = MouseKeys()
     mediaKeys = MediaKeys()
-    rgbLayers = RGBLayers(rgbController )
+    rgbLayers = RGBLayers(board.D0, 0.1 )
+    midi = MidiKeys()
+    #keyboard.modules.append()
+
     keyboard.extensions = [
         mediaKeys,
-        rgbController,
         #locks
     ]
     keyboard.modules = [
@@ -185,20 +172,19 @@ def initKB():
         mouseKeys,
         #midiKeys,
         rgbLayers,
+        midi,
     ]
     
     del SplitUART
     #del Split
     del board
-    del RGB
     del Layers
     del DiodeOrientation
     del RGBLayers
-    del RGBController
     del MatrixScanner
     del MouseKeys
     del MediaKeys
-    #del MidiKeys
+    del midi
     del col_pins
     del row_pins
     import gc

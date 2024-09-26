@@ -67,7 +67,7 @@ def assignKeys ():
     layer0Asignations[36] =  kc.LALT # kc.TD( kc.BSPACE, kc.DELETE, tap_time=tapTime)
     layer0Asignations[37] =  space
     layer0Asignations[38] =  kc.MO(1)
-    layer0Asignations[39] =  layer3
+    layer0Asignations[39] =  layer2
     layer0Asignations[40] =  kc.AUDIO_MUTE
     layer0Asignations[41] =  noAsg
 
@@ -127,7 +127,7 @@ def assignKeys ():
     layer1Asignations[36] =  kc.LALT
     layer1Asignations[37] =  space
     layer1Asignations[38] =  goHome
-    layer1Asignations[39] =  layer3
+    layer1Asignations[39] =  layer2
     layer1Asignations[40] =  kc.MEDIA_PLAY_PAUSE
     layer1Asignations[41] =  noAsg
 
@@ -187,7 +187,7 @@ def assignKeys ():
     layer2Asignations[36] =  kc.LALT
     layer2Asignations[37] =  kc.SPACE
     layer2Asignations[38] =  goHome
-    layer2Asignations[39] =  layer3
+    layer2Asignations[39] =  layer2
     layer2Asignations[40] =  kc.MB_MMB
     layer2Asignations[41] =  noAsg
 
