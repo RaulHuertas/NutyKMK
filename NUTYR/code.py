@@ -14,7 +14,6 @@ def initKB():
     from math import modf
     from kmk.modules.midi import MidiKeys
 
-
     col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
 
@@ -67,7 +66,19 @@ def initKB():
             self.wpmHigh = False
             
             self.startTime = monotonic()
-        
+            
+            from digitalio import DigitalInOut, Direction
+            self.redLED = DigitalInOut(board.LED_RED)
+            self.redLED.direction = Direction.OUTPUT
+            self.greenLED = DigitalInOut(board.LED_GREEN)
+            self.greenLED.direction = Direction.OUTPUT
+            self.blueLED = DigitalInOut(board.LED_BLUE)
+            self.blueLED.direction = Direction.OUTPUT
+            self.currentLayer = 0
+
+            #initialize lights
+            self.on_layer_change(0)
+            
         def incrWPM(self, inc=1):
             self.wpmC +=  inc
 
@@ -83,14 +94,14 @@ def initKB():
             super().deactivate_layer(keyboard, layer)
             self.on_layer_change(keyboard.active_layers[0])
 
-        def before_matrix_scan(self, sandbox):
-            super().before_matrix_scan(sandbox)
+        def updateLights(self):
+            
             nowT = monotonic()
             #blink pulse             
-            pulsePosition = (nowT)/2.0 #blink period
-            pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
+            pulsePosition = (nowT)/1.0 #blink period
+            pulseOn = modf(pulsePosition)[0]>0.5 #off cycle
             pulseHighPosition = (nowT)/0.6 #blink period
-            pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
+            pulseHighOn = modf(pulseHighPosition)[0]>0.2 #off cycle
             #wpmHigh
             if((nowT-self.startTime)>1):#update wmpHigh
                 self.startTime = nowT
@@ -117,6 +128,48 @@ def initKB():
             else:
                 self.rgbStrip[0] = BLUE
 
+
+            #####BOARD LEDS
+            PURPLE = (180, 0, 255)
+            OFF = (0, 0,0)
+            #print(layer)
+            if self.currentLayer == 0:
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = OFF
+                self.rgbStrip[4] = OFF
+                self.rgbStrip[5] = OFF
+                self.redLED.value = not (True and pulseHighOn)
+                self.greenLED.value = not (False and pulseHighOn)
+                self.blueLED.value = not (False and pulseHighOn)
+            elif self.currentLayer == 1:
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = OFF
+                self.rgbStrip[5] = OFF
+                self.redLED.value = not (False and pulseHighOn)
+                self.greenLED.value = not (True and pulseHighOn)
+                self.blueLED.value = not (False and pulseHighOn)
+            elif self.currentLayer == 2:
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = PURPLE
+                self.rgbStrip[5] = OFF
+                self.redLED.value = not (False and pulseHighOn)
+                self.greenLED.value = not (False and pulseHighOn)
+                self.blueLED.value = not (True and pulseHighOn)
+            elif self.currentLayer == 3:
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = PURPLE
+                self.rgbStrip[5] = PURPLE
+                self.redLED.value = not (True and pulseHighOn)
+                self.greenLED.value = not (True and pulseHighOn)
+                self.blueLED.value = not (True and pulseHighOn)
+
+        def before_matrix_scan(self, sandbox):
+            super().before_matrix_scan(sandbox)
+            self.updateLights()
+
         def after_matrix_scan(self, keyboard):
             super().after_matrix_scan(keyboard)
             
@@ -129,35 +182,19 @@ def initKB():
             super().after_hid_send(keyboard)
 
         def on_layer_change(self, layer):
+            nowT = monotonic()
+            self.currentLayer = layer
+            self.updateLights()
             
-            PURPLE = (180, 0, 255)
-            OFF = (0, 0, 0)
-            print(layer)
-            if layer == 0:
-                self.rgbStrip[2] = PURPLE
-                self.rgbStrip[3] = OFF
-                self.rgbStrip[4] = OFF
-                self.rgbStrip[5] = OFF
-            elif layer == 1:
-                self.rgbStrip[2] = PURPLE
-                self.rgbStrip[3] = PURPLE
-                self.rgbStrip[4] = OFF
-                self.rgbStrip[5] = OFF
-            elif layer == 2:
-                self.rgbStrip[2] = PURPLE
-                self.rgbStrip[3] = PURPLE
-                self.rgbStrip[4] = PURPLE
-                self.rgbStrip[5] = OFF
-            elif layer == 3:
-                self.rgbStrip[2] = PURPLE
-                self.rgbStrip[3] = PURPLE
-                self.rgbStrip[4] = PURPLE
-                self.rgbStrip[5] = PURPLE
+            
+
+
+           
     
     from kmk.extensions.media_keys import MediaKeys 
     mouseKeys = MouseKeys()
     mediaKeys = MediaKeys()
-    rgbLayers = RGBLayers(board.D0, 0.1 )
+    rgbLayers = RGBLayers(board.D0, 0.05 )
     midi = MidiKeys()
     #keyboard.modules.append()
 
