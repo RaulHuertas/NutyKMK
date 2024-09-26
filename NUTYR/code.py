@@ -38,8 +38,8 @@ def initKB():
                 row_pins=row_pins,
                 # optional arguments with defaults:
                 columns_to_anodes=diode_orientation,
-                interval=0.019,  # Debounce time in floating point seconds
-                max_events=3
+                interval=0.020,  # Debounce time in floating point seconds
+                max_events=2
             )
     keyboard = MyKeyboard()
 
@@ -246,7 +246,7 @@ def initKB():
     del row_pins
     import gc
     gc.collect()
-    
+    print('mem_info used:', gc.mem_alloc(), ' free:', gc.mem_free())
     from keyAssignations import assignKeys
     keyboard.keymap = assignKeys()
     del assignKeys
