@@ -8,7 +8,7 @@ PURPLE = (180, 0, 255)
 
 def initKB():
     
-    from kmk.extensions.media_keys import MediaKeys
+    #from kmk.extensions.media_keys import MediaKeys
     from kmk.modules.mouse_keys import MouseKeys
     from kmk.modules.spUart import SplitUART, SplitSide
     
@@ -21,6 +21,7 @@ def initKB():
     from time import monotonic
     from math import modf
     from kmk.modules.midi import MidiKeys
+    from kmk.keys import ConsumerKey, make_key
 
     col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
@@ -85,8 +86,28 @@ def initKB():
             self.currentLayer = 0
 
             #initialize lights
-            self.on_layer_change(0)
+            self.updateLights(  )
             
+            #initialize media
+            mediaCodes = (
+                (0xE2, ('AUDIO_MUTE', 'MUTE')),
+                (0xE9, ('AUDIO_VOL_UP', 'VOLU')),
+                (0xEA, ('AUDIO_VOL_DOWN', 'VOLD')),
+                (0x6F, ('BRIGHTNESS_UP', 'BRIU')),
+                (0x70, ('BRIGHTNESS_DOWN', 'BRID')),
+                (0xB5, ('MEDIA_NEXT_TRACK', 'MNXT')),
+                (0xB6, ('MEDIA_PREV_TRACK', 'MPRV')),
+                (0xB7, ('MEDIA_STOP', 'MSTP')),
+                (0xCD, ('MEDIA_PLAY_PAUSE', 'MPLY')),
+                #(0xB8, ('MEDIA_EJECT', 'EJCT')),
+                (0xB3, ('MEDIA_FAST_FORWARD', 'MFFD')),
+                (0xB4, ('MEDIA_REWIND', 'MRWD')),
+            )
+
+            for code, names in mediaCodes:
+                make_key(names=names, constructor=ConsumerKey, code=code)
+
+
         def incrWPM(self, inc=1):
             self.wpmC +=  inc
 
@@ -149,25 +170,25 @@ def initKB():
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
-                self.redLED.value = not (False and pulseHighOn)
-                self.greenLED.value = not (True and pulseHighOn)
-                self.blueLED.value = not (False and pulseHighOn)
+                self.redLED.value = not (False )
+                self.greenLED.value = not (True )
+                self.blueLED.value = not (False )
             elif self.currentLayer == 2:
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = PURPLE
                 self.rgbStrip[5] = OFF
-                self.redLED.value = not (False and pulseHighOn)
-                self.greenLED.value = not (False and pulseHighOn)
-                self.blueLED.value = not (True and pulseHighOn)
+                self.redLED.value = not (False )
+                self.greenLED.value = not (False )
+                self.blueLED.value = not (True )
             elif self.currentLayer == 3:
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = PURPLE
                 self.rgbStrip[5] = PURPLE
-                self.redLED.value = not (True and pulseHighOn)
-                self.greenLED.value = not (True and pulseHighOn)
-                self.blueLED.value = not (True and pulseHighOn)
+                self.redLED.value = not (True )
+                self.greenLED.value = not (True )
+                self.blueLED.value = not (True )
 
         def before_matrix_scan(self, sandbox):
             super().before_matrix_scan(sandbox)
@@ -196,14 +217,14 @@ def initKB():
     
     from kmk.extensions.media_keys import MediaKeys 
     mouseKeys = MouseKeys()
-    mediaKeys = MediaKeys()
+    #mediaKeys = MediaKeys()
     rgbLayers = RGBLayers(board.D0, 0.03 )
     midi = MidiKeys()
     #keyboard.modules.append()
 
-    keyboard.extensions = [
-        mediaKeys,
-    ]
+    # keyboard.extensions = [
+    #     mediaKeys,
+    # ]
     keyboard.modules = [
         split, 
         mouseKeys,
@@ -219,7 +240,7 @@ def initKB():
     del RGBLayers
     del MatrixScanner
     del MouseKeys
-    del MediaKeys
+    #del MediaKeys
     del midi
     del col_pins
     del row_pins
