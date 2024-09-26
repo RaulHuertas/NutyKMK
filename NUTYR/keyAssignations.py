@@ -18,6 +18,7 @@ def assignKeys ():
     lShift = kc.LSHIFT
     layer1 = kc.FD(1)
     layer2 = kc.FD(2)
+    layer3 = kc.FD(3)
     esc = kc.ESCAPE
 
     layer0Asignations = [ noAsg]*48
@@ -66,7 +67,7 @@ def assignKeys ():
     layer0Asignations[36] =  kc.LALT # kc.TD( kc.BSPACE, kc.DELETE, tap_time=tapTime)
     layer0Asignations[37] =  space
     layer0Asignations[38] =  kc.MO(1)
-    layer0Asignations[39] =  layer2
+    layer0Asignations[39] =  layer3
     layer0Asignations[40] =  kc.AUDIO_MUTE
     layer0Asignations[41] =  noAsg
 
@@ -126,7 +127,7 @@ def assignKeys ():
     layer1Asignations[36] =  kc.LALT
     layer1Asignations[37] =  space
     layer1Asignations[38] =  goHome
-    layer1Asignations[39] =  layer2
+    layer1Asignations[39] =  layer3
     layer1Asignations[40] =  kc.MEDIA_PLAY_PAUSE
     layer1Asignations[41] =  noAsg
 
@@ -181,12 +182,12 @@ def assignKeys ():
     layer2Asignations[32] =  kc.F6
     layer2Asignations[33] =  kc.F7
     layer2Asignations[34] =  kc.F8
-    layer2Asignations[35] =  goHome
+    layer2Asignations[35] =  layer3
     #ROW3
     layer2Asignations[36] =  kc.LALT
     layer2Asignations[37] =  kc.SPACE
     layer2Asignations[38] =  goHome
-    layer2Asignations[39] =  layer2
+    layer2Asignations[39] =  layer3
     layer2Asignations[40] =  kc.MB_MMB
     layer2Asignations[41] =  noAsg
 
@@ -198,12 +199,72 @@ def assignKeys ():
     layer2Asignations[47] =  esc
 
     
-#    layer3Asignations = [ noAsg]*48
+    layer3Asignations = [ noAsg]*48
+    midi = kc.MIDI_NOTE
+    layer3Asignations[0] =  midi(60)
+    layer3Asignations[1] =  midi(61)
+    layer3Asignations[2] =  midi(62)
+    layer3Asignations[3] =  midi(63)
+    layer3Asignations[4] =  midi(64)
+    layer3Asignations[5] =  midi(65)
+
+    layer3Asignations[6] =  midi(66)
+    layer3Asignations[7] =  midi(67)
+    layer3Asignations[8] =  midi(68)
+    layer3Asignations[9] =  midi(69)
+    layer3Asignations[10] = midi(70)
+    layer3Asignations[11] = midi(71)
+    #ROW1
+    layer3Asignations[12] =  midi(72)
+    layer3Asignations[13] =  midi(73)
+    layer3Asignations[14] =  midi(74)
+    layer3Asignations[15] =  midi(75)
+    layer3Asignations[16] =  midi(76)
+    layer3Asignations[17] =  midi(77)
+
+    layer3Asignations[18] =  midi(78)
+    layer3Asignations[19] =  midi(79)
+    layer3Asignations[20] =  midi(80)
+    layer3Asignations[21] =  midi(81)
+    layer3Asignations[22] =  midi(82)
+    layer3Asignations[23] =  midi(83)
+    
+    #ROW2
+    layer3Asignations[24] =  midi(84)
+    layer3Asignations[25] =  midi(85)
+    layer3Asignations[26] =  midi(86)
+    layer3Asignations[27] =  midi(87)
+    layer3Asignations[28] =  midi(88)
+    layer3Asignations[29] =  midi(89)
+
+    layer3Asignations[30] =  midi(90)
+    layer3Asignations[31] =  midi(91)
+    layer3Asignations[32] =  midi(92)
+    layer3Asignations[33] =  midi(93)
+    layer3Asignations[34] =  midi(94)
+    layer3Asignations[35] =  midi(95)
+    #ROW3
+    layer3Asignations[36] =  kc.LALT
+    layer3Asignations[37] =  kc.MIDI_START()
+    layer3Asignations[38] =  goHome
+    layer3Asignations[39] =  layer3
+    layer3Asignations[40] =  kc.MB_MMB
+    layer3Asignations[41] =  noAsg
+
+    layer3Asignations[42] =  noAsg
+    layer3Asignations[43] =  kc.AUDIO_VOL_UP
+    layer3Asignations[44] =  kc.AUDIO_VOL_DOWN
+    layer3Asignations[45] =  kc.LGUI
+    layer3Asignations[46] =  kc.MIDI_STOP()
+    layer3Asignations[47] =  esc
+    
+    layer3Asignations[39] =  goHome
+
 
     return  [
         layer0Asignations,#base
         layer1Asignations,#nums and symbols
         layer2Asignations,#FN ,#nums and symbols
-#        layer3Asignations,
+        layer3Asignations,
     ]
 
