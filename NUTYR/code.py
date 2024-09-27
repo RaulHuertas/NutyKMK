@@ -5,7 +5,7 @@ ORANGE = (234,133,51)
 RED = (255, 0, 0)
 PURPLE = (180, 0, 255)
 WHITE = (255, 255, 255)
-YELLOW = (255, 255, 0)
+YELLOW = (128, 128, 0)
 
 def initKB():
     
@@ -135,7 +135,7 @@ def initKB():
             #blink pulse             
             pulsePosition = (nowT)/2.0 #blink period
             pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
-            pulseHighPosition = (nowT)/0.6 #blink period
+            pulseHighPosition = (nowT)/0.4 #blink period
             pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
             #wpmHigh
             if((nowT-self.startTime)>1):#update wmpHigh
@@ -150,23 +150,26 @@ def initKB():
 
             #led status
             
-            if pulseOn :
-                self.rgbStrip[1] = BLUE
-            else:
-                self.rgbStrip[1] = OFF
+            # if pulseOn :
+            #     self.rgbStrip[1] = BLUE
+            # else:
+            #     self.rgbStrip[1] = OFF
             #led high wpm
-            if self.wpmHigh and pulseHighOn :
-                self.rgbStrip[0] = ORANGE
+            if self.wpmHigh :
+                if pulseHighOn:
+                    self.rgbStrip[0] = GREEN
+                else:
+                    self.rgbStrip[0] = ORANGE
             else:
-                self.rgbStrip[0] = YELLOW
-
+                self.rgbStrip[0] = BLUE
 
             #####BOARD LEDS
             #print(layer)
-            dtcyc = 10000
+            dtcyc = 30000
             dtcycOff = 65535
             if self.currentLayer == 0:
-                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = OFF
                 self.rgbStrip[3] = OFF
                 self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
@@ -174,27 +177,35 @@ def initKB():
                 self.greenLED.value = not (False )
                 self.blueLED.value = not (False )
             elif self.currentLayer == 1:
+                self.rgbStrip[1] = PURPLE
                 self.rgbStrip[2] = PURPLE 
-                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[3] = OFF
                 self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
                 self.greenLED.value = not (True )
                 self.blueLED.value = not (False )
             elif self.currentLayer == 2:
+                self.rgbStrip[1] = PURPLE
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = PURPLE
-                self.rgbStrip[4] = PURPLE
+                self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
                 self.greenLED.value = not (False )
                 self.blueLED.value = not (True )
             elif self.currentLayer == 3:
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = PURPLE
+                self.rgbStrip[5] = OFF    
+            elif self.currentLayer == 4:
+                self.rgbStrip[1] = PURPLE
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = PURPLE
                 self.rgbStrip[5] = PURPLE
-                
                 self.redLED.duty_cycle = dtcyc
                 self.greenLED.value = not (True )
                 self.blueLED.value = not (True )
