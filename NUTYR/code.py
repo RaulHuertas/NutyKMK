@@ -74,7 +74,7 @@ def initKB():
             Layers.__init__(self)
             self.br =brightness
             from neopixel import NeoPixel
-            self.rgbStrip =  NeoPixel(pin, 6,brightness=self.br)      
+            self.rgbStrip =  NeoPixel(pin, 29,brightness=self.br)      
             self.wpmC = 0
             self.wpmHigh = False
             
