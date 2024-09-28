@@ -7,13 +7,13 @@ from storage import getmount
 from kmk.keys import ConsumerKey, KeyboardKey, ModifierKey, MouseKey
 from kmk.utils import Debug, clamp
 
-try:
-    from adafruit_ble import BLERadio
-    from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-    from adafruit_ble.services.standard.hid import HIDService
-except ImportError:
-    # BLE not supported on this platform
-    pass
+#try:
+#     from adafruit_ble import BLERadio
+#     from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
+#     from adafruit_ble.services.standard.hid import HIDService
+# except ImportError:
+#     # BLE not supported on this platform
+#     pass
 
 
 debug = Debug(__name__)
@@ -22,9 +22,9 @@ debug = Debug(__name__)
 class HIDModes:
     NOOP = 0  # currently unused; for testing?
     USB = 1
-    BLE = 2
+#    BLE = 2
 
-    ALL_MODES = (NOOP, USB, BLE)
+    ALL_MODES = (NOOP, USB)
 
 
 class HIDReportTypes:
@@ -283,89 +283,3 @@ class USBHID(AbstractHID):
         reporting_device_const = evt[0]
 
         return self.devices[reporting_device_const].send_report(evt[1:])
-
-
-class BLEHID(AbstractHID):
-    BLE_APPEARANCE_HID_KEYBOARD = const(961)
-    # Hardcoded in CPy
-    MAX_CONNECTIONS = const(2)
-
-    def __init__(self, ble_name=str(getmount('/').label), **kwargs):
-
-        self.ble_name = ble_name
-        self.ble = BLERadio()
-        self.ble.name = self.ble_name
-        self.hid = HIDService()
-        self.hid.protocol_mode = 0  # Boot protocol
-        super().__init__(**kwargs)
-
-        # Security-wise this is not right. While you're away someone turns
-        # on your keyboard and they can pair with it nice and clean and then
-        # listen to keystrokes.
-        # On the other hand we don't have LESC so it's like shouting your
-        # keystrokes in the air
-        if not self.ble.connected or not self.hid.devices:
-            self.start_advertising()
-
-    @property
-    def devices(self):
-        '''Search through the provided list of devices to find the ones with the
-        send_report attribute.'''
-        if not self.ble.connected:
-            return {}
-
-        result = {}
-
-        for device in self.hid.devices:
-            if not hasattr(device, 'send_report'):
-                continue
-            us = device.usage
-            up = device.usage_page
-
-            if up == HIDUsagePage.CONSUMER and us == HIDUsage.CONSUMER:
-                result[HIDReportTypes.CONSUMER] = device
-                continue
-
-            if up == HIDUsagePage.KEYBOARD and us == HIDUsage.KEYBOARD:
-                result[HIDReportTypes.KEYBOARD] = device
-                continue
-
-            if up == HIDUsagePage.MOUSE and us == HIDUsage.MOUSE:
-                result[HIDReportTypes.MOUSE] = device
-                continue
-
-            if up == HIDUsagePage.SYSCONTROL and us == HIDUsage.SYSCONTROL:
-                result[HIDReportTypes.SYSCONTROL] = device
-                continue
-
-        return result
-
-    def hid_send(self, evt):
-        if not self.ble.connected:
-            return
-
-        # int, can be looked up in HIDReportTypes
-        reporting_device_const = evt[0]
-
-        device = self.devices[reporting_device_const]
-
-        report_size = len(device._characteristic.value)
-        while len(evt) < report_size + 1:
-            evt.append(0)
-
-        return device.send_report(evt[1 : report_size + 1])  # noqa: E203
-
-    def clear_bonds(self):
-        import _bleio
-
-        _bleio.adapter.erase_bonding()
-
-    def start_advertising(self):
-        if not self.ble.advertising:
-            advertisement = ProvideServicesAdvertisement(self.hid)
-            advertisement.appearance = self.BLE_APPEARANCE_HID_KEYBOARD
-
-            self.ble.start_advertising(advertisement)
-
-    def stop_advertising(self):
-        self.ble.stop_advertising()
