@@ -74,7 +74,7 @@ def initKB():
             Layers.__init__(self)
             self.br =brightness
             from neopixel import NeoPixel
-            self.rgbStrip =  NeoPixel(pin, 29,brightness=self.br)      
+            self.rgbStrip =  NeoPixel(pin, 29,brightness=self.br , auto_write=False)      
             self.wpmC = 0
             self.wpmHigh = False
             
@@ -153,9 +153,14 @@ def initKB():
                     self.wpmHigh = False
                 self.resetWPM()
 
+            #######################
+            ######LEDS status######
+            #######################
 
-            #led status
+            if ((nowT-self.ledAnimTime)<0.040):
+                return
             
+
             # if pulseOn :
             #     self.rgbStrip[1] = BLUE
             # else:
@@ -219,6 +224,8 @@ def initKB():
                 self.redLED.duty_cycle = dtcyc
                 self.greenLED.duty_cycle = dtcycOff
                 self.blueLED.duty_cycle = dtcyc
+            self.rgbStrip.show()
+            self.ledAnimTime = nowT
 
         def before_matrix_scan(self, sandbox):
             super().before_matrix_scan(sandbox)
