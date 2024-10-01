@@ -80,15 +80,21 @@ def initKB():
             
             self.startTime = monotonic()
             
+            self.ledAnimTime = monotonic()
             from digitalio import DigitalInOut, Direction
             #self.redLED = DigitalInOut(board.LED_RED)
             #self.redLED.direction = Direction.OUTPUT
             self.redLED = pwmio.PWMOut(board.LED_RED, frequency=5000, duty_cycle=0)
 
-            self.greenLED = DigitalInOut(board.LED_GREEN)
-            self.greenLED.direction = Direction.OUTPUT
-            self.blueLED = DigitalInOut(board.LED_BLUE)
-            self.blueLED.direction = Direction.OUTPUT
+            #self.greenLED = DigitalInOut(board.LED_GREEN)
+            #self.greenLED.direction = Direction.OUTPUT
+            #self.blueLED = DigitalInOut(board.LED_BLUE)
+            #self.blueLED.direction = Direction.OUTPUT
+            self.greenLED = pwmio.PWMOut(board.LED_GREEN, frequency=5000, duty_cycle=0)
+            self.blueLED = pwmio.PWMOut(board.LED_BLUE, frequency=5000, duty_cycle=0)
+
+
+
             self.currentLayer = 0
 
             #initialize lights
@@ -174,8 +180,8 @@ def initKB():
                 self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcyc
-                self.greenLED.value = not (False )
-                self.blueLED.value = not (False )
+                self.greenLED.duty_cycle = dtcycOff
+                self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 1:
                 self.rgbStrip[1] = PURPLE
                 self.rgbStrip[2] = PURPLE 
@@ -183,8 +189,8 @@ def initKB():
                 self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
-                self.greenLED.value = not (True )
-                self.blueLED.value = not (False )
+                self.greenLED.duty_cycle = dtcyc
+                self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 2:
                 self.rgbStrip[1] = PURPLE
                 self.rgbStrip[2] = PURPLE
@@ -192,14 +198,18 @@ def initKB():
                 self.rgbStrip[4] = OFF
                 self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
-                self.greenLED.value = not (False )
-                self.blueLED.value = not (True )
+                self.greenLED.duty_cycle = dtcycOff
+                self.blueLED.duty_cycle = dtcyc
             elif self.currentLayer == 3:
                 self.rgbStrip[1] = PURPLE
                 self.rgbStrip[2] = PURPLE
                 self.rgbStrip[3] = PURPLE
                 self.rgbStrip[4] = PURPLE
                 self.rgbStrip[5] = OFF    
+
+                self.redLED.duty_cycle = dtcyc
+                self.greenLED.duty_cycle = dtcyc
+                self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 4:
                 self.rgbStrip[1] = PURPLE
                 self.rgbStrip[2] = PURPLE
@@ -207,8 +217,8 @@ def initKB():
                 self.rgbStrip[4] = PURPLE
                 self.rgbStrip[5] = PURPLE
                 self.redLED.duty_cycle = dtcyc
-                self.greenLED.value = not (True )
-                self.blueLED.value = not (True )
+                self.greenLED.duty_cycle = dtcycOff
+                self.blueLED.duty_cycle = dtcyc
 
         def before_matrix_scan(self, sandbox):
             super().before_matrix_scan(sandbox)
