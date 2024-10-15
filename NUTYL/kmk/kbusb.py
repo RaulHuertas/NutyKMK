@@ -45,7 +45,6 @@ class KMKKeyboard:
     matrix = None
 
     modules = []
-    extensions = []
     sandbox = Sandbox()
 
     #####
@@ -333,17 +332,6 @@ class KMKKeyboard:
         if debug.enabled:
             debug('modules=', [_.__class__.__name__ for _ in self.modules])
 
-        for idx, ext in enumerate(self.extensions):
-            try:
-                ext.during_bootup(self)
-            except Exception as err:
-                debug_error(ext, 'during_bootup', err)
-                self.extensions[idx] = None
-
-        self.extensions[:] = [_ for _ in self.extensions if _]
-
-        if debug.enabled:
-            debug('extensions=', [_.__class__.__name__ for _ in self.extensions])
 
     def before_matrix_scan(self) -> None:
         for module in self.modules:
@@ -352,11 +340,6 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'before_matrix_scan', err)
 
-        for ext in self.extensions:
-            try:
-                ext.before_matrix_scan(self.sandbox)
-            except Exception as err:
-                debug_error(ext, 'before_matrix_scan', err)
 
     def after_matrix_scan(self) -> None:
         for module in self.modules:
@@ -373,11 +356,6 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'before_hid_send', err)
 
-        for ext in self.extensions:
-            try:
-                ext.before_hid_send(self.sandbox)
-            except Exception as err:
-                debug_error(ext, 'before_hid_send', err)
 
     def after_hid_send(self) -> None:
         for module in self.modules:
@@ -386,11 +364,6 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'after_hid_send', err)
 
-        for ext in self.extensions:
-            try:
-                ext.after_hid_send(self.sandbox)
-            except Exception as err:
-                debug_error(ext, 'after_hid_send', err)
 
 
     def deinit(self) -> None:
@@ -400,11 +373,6 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'deinit', err)
 
-        for ext in self.extensions:
-            try:
-                ext.deinit(self.sandbox)
-            except Exception as err:
-                debug_error(ext, 'deinit', err)
 
     def go(self, **kwargs) -> None:
         try:
