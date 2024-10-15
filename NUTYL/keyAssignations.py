@@ -1,18 +1,19 @@
-from kmk.keys import KC
 
 
 def assignKeys ():
+    from kmk.keys import KC
+    
     kc = KC
-    NTIL = KC.SCOLON
-    OPENING_QUESTION_MARK  = KC.EQUAL
-    QUOTE  = KC.MINUS
-    OPENING_BRAQUETS  = KC.QUOTE    
-    CLOSING_BRAQUETS  = KC.NONUS_HASH 
-    LESSER_GREATER = KC.NUBS
-    TILDE_DIERESIS = KC.LBRACKET
-    PLUS = KC.RBRACKET
-    PIPE = KC.GRAVE 
-    space = KC.SPACE
+    NTIL = kc.SCOLON
+    OPENING_QUESTION_MARK  = kc.EQUAL
+    QUOTE  = kc.MINUS
+    OPENING_BRAQUETS  = kc.QUOTE    
+    CLOSING_BRAQUETS  = kc.NONUS_HASH 
+    LESSER_GREATER = kc.NUBS
+    TILDE_DIERESIS = kc.LBRACKET
+    PLUS = kc.RBRACKET
+    PIPE = kc.GRAVE 
+    space = kc.SPACE
     goHome = kc.FD(0)
     noAsg = kc.NO
     lShift = kc.LSHIFT
@@ -181,7 +182,7 @@ def assignKeys ():
     layer2Asignations[32] =  kc.F6
     layer2Asignations[33] =  kc.F7
     layer2Asignations[34] =  kc.F8
-    layer2Asignations[35] =  goHome
+    layer2Asignations[35] =  layer2
     #ROW3
     layer2Asignations[36] =  kc.LALT
     layer2Asignations[37] =  kc.SPACE
@@ -197,13 +198,9 @@ def assignKeys ():
     layer2Asignations[46] =  kc.ENTER
     layer2Asignations[47] =  esc
 
-    
-#    layer3Asignations = [ noAsg]*48
-
     return  [
         layer0Asignations,#base
         layer1Asignations,#nums and symbols
-        layer2Asignations,#FN ,#nums and symbols
-#        layer3Asignations,
+        layer2Asignations
     ]
 

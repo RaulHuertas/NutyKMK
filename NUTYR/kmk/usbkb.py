@@ -6,7 +6,7 @@ except ImportError:
 from collections import namedtuple
 from keypad import Event as KeyEvent
 
-from kmk.hid import USBHID
+from kmk.hidusb import USBHID
 from kmk.keys import KC, Key
 from kmk.modules import Module
 from kmk.scanners.keypad import MatrixScanner

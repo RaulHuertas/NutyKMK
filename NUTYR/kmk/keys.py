@@ -288,10 +288,10 @@ def maybe_make_shifted_key(candidate: str) -> Optional[Key]:
 
 
 def maybe_make_international_key(candidate: str) -> Optional[Key]:
-    # codes = (
-    #     (50, ('NONUS_HASH', 'NUHS')),
-    #     (100, ('NONUS_BSLASH', 'NUBS')),
-    #     (101, ('APP', 'APPLICATION', 'SEL', 'WINMENU')),
+    codes = (
+         (50, ('NONUS_HASH', 'NUHS')),
+         (100, ('NONUS_BSLASH', 'NUBS')),
+         (101, ('APP', 'APPLICATION', 'SEL', 'WINMENU')),
     #     (135, ('INT1', 'RO')),
     #     (136, ('INT2', 'KANA')),
     #     (137, ('INT3', 'JYEN')),
@@ -310,11 +310,11 @@ def maybe_make_international_key(candidate: str) -> Optional[Key]:
     #     (150, ('LANG7',)),
     #     (151, ('LANG8',)),
     #     (152, ('LANG9',)),
-    # )
+    )
 
-    # for code, names in codes:
-    #     if candidate in names:
-    #         return make_key(names=names, constructor=KeyboardKey, code=code)
+    for code, names in codes:
+        if candidate in names:
+            return make_key(names=names, constructor=KeyboardKey, code=code)
     pass
 
 def maybe_make_firmware_key(candidate: str) -> Optional[Key]:

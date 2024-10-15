@@ -4,7 +4,6 @@ from supervisor import ticks_ms
 
 from time import sleep
 
-from kmk.handlers.stock import passthrough as handler_passthrough
 from kmk.keys import make_key
 from kmk.kmktime import check_deadline
 from kmk.modules import Module
@@ -17,19 +16,11 @@ class Power(Module):
         self._powersave_start = ticks_ms()
         self._usb_last_scan = ticks_ms() - 5000
         self._psp = None  # Powersave pin object
-        self._i2c = 0
-        self._i2c_deinit_count = 0
         self._loopcounter = 0
 
-        make_key(
-            names=('PS_TOG',), on_press=self._ps_tog, on_release=handler_passthrough
-        )
-        make_key(
-            names=('PS_ON',), on_press=self._ps_enable, on_release=handler_passthrough
-        )
-        make_key(
-            names=('PS_OFF',), on_press=self._ps_disable, on_release=handler_passthrough
-        )
+        make_key(names=('PS_TOG',), on_press=self._ps_tog)
+        make_key(names=('PS_ON',), on_press=self._ps_enable)
+        make_key(names=('PS_OFF',), on_press=self._ps_disable)
 
     def __repr__(self):
         return f'Power({self._to_dict()})'
@@ -44,7 +35,6 @@ class Power(Module):
         }
 
     def during_bootup(self, keyboard):
-        #self._i2c_scan()
         pass
 
     def before_matrix_scan(self, keyboard):
@@ -76,15 +66,7 @@ class Power(Module):
 
     def enable_powersave(self, keyboard):
         '''Enables power saving features'''
-        if self._i2c_deinit_count >= self._i2c and self.powersave_pin:
-            # Allows power save to prevent RGB drain.
-            # Example here https://docs.nicekeyboards.com/#/nice!nano/pinout_schematic
-
-            if not self._psp:
-                self._psp = digitalio.DigitalInOut(self.powersave_pin)
-                self._psp.direction = digitalio.Direction.OUTPUT
-            if self._psp:
-                self._psp.value = True
+        
 
         self.enable = True
         keyboard._trigger_powersave_enable = False

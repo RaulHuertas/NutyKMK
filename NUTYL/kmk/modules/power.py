@@ -16,8 +16,6 @@ class Power(Module):
         self._powersave_start = ticks_ms()
         self._usb_last_scan = ticks_ms() - 5000
         self._psp = None  # Powersave pin object
-        self._i2c = 0
-        self._i2c_deinit_count = 0
         self._loopcounter = 0
 
         make_key(names=('PS_TOG',), on_press=self._ps_tog)
@@ -37,7 +35,7 @@ class Power(Module):
         }
 
     def during_bootup(self, keyboard):
-        self._i2c_scan()
+        pass
 
     def before_matrix_scan(self, keyboard):
         return
