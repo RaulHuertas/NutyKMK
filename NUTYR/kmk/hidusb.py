@@ -1,30 +1,13 @@
 import supervisor
 import usb_hid
-from micropython import const
 
-from storage import getmount
 
 from kmk.keys import ConsumerKey, KeyboardKey, ModifierKey, MouseKey
 from kmk.utils import Debug, clamp
 
-#try:
-#     from adafruit_ble import BLERadio
-#     from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-#     from adafruit_ble.services.standard.hid import HIDService
-# except ImportError:
-#     # BLE not supported on this platform
-#     pass
 
 
 debug = Debug(__name__)
-
-
-class HIDModes:
-    NOOP = 0  # currently unused; for testing?
-    USB = 1
-#    BLE = 2
-
-    ALL_MODES = (NOOP, USB)
 
 
 class HIDReportTypes:
@@ -283,3 +266,4 @@ class USBHID(AbstractHID):
         reporting_device_const = evt[0]
 
         return self.devices[reporting_device_const].send_report(evt[1:])
+

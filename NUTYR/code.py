@@ -64,8 +64,8 @@ del row_pins
 
 def initKB():
     global bleEnabled
-    from kmk.modules.mouse_keys import MouseKeys
-    from kmk.modules.spUart import SplitUART, SplitSide
+    #from kmk.modules.mouse_keys import MouseKeys
+    #from kmk.modules.spUart import SplitUART, SplitSide
     
     from kmk.kmk_keyboard import KMKKeyboard
    
@@ -107,13 +107,15 @@ def initKB():
         18, 19, 20, 21, 22, 23 ,
         42, 43, 44, 45, 46, 47,
     ]
+    from kmk.modules.splituart import SplitUART, SplitSide
+        
     split = SplitUART(
         split_side=SplitSide.RIGHT,
         #split_type=SplitType.UART,
         split_target_left=True,
         data_pin = board.D5,#RX
         data_pin2 = board.D6,#TX
-        uart_flip = False,
+        #uart_flip = False,
         debug_enabled = False
     )
     
@@ -307,7 +309,7 @@ def initKB():
 
     
     from kmk.extensions.media_keys import MediaKeys 
-    mouseKeys = MouseKeys()
+    #mouseKeys = MouseKeys()
     rgbLayers = RGBLayers(board.D0, 0.03 )
 
     if bleEnabled:
@@ -316,7 +318,7 @@ def initKB():
         power = Power()
         keyboard.modules = [
             split, 
-            mouseKeys,
+            #mouseKeys,
             rgbLayers,
             power
         ]
@@ -325,7 +327,7 @@ def initKB():
 
         keyboard.modules = [
             split, 
-            mouseKeys,
+            #mouseKeys,
             rgbLayers,
             MidiKeys()
         ]
@@ -337,7 +339,7 @@ def initKB():
     del DiodeOrientation
     del RGBLayers
     del MatrixScanner
-    del MouseKeys
+    #del MouseKeys
     #del MediaKeys
     del col_pins
     del row_pins

@@ -381,7 +381,7 @@ def initKB():
 if __name__ == '__main__':
     print("Starting on NML now")
     kb = initKB()
-    kb.debug_enabled = True
+    kb.debug_enabled = False
     from keyAssignations import assignKeys
     kb.keymap = assignKeys()
     del assignKeys

@@ -66,7 +66,15 @@ class Power(Module):
 
     def enable_powersave(self, keyboard):
         '''Enables power saving features'''
-        
+        if self._i2c_deinit_count >= self._i2c and self.powersave_pin:
+            # Allows power save to prevent RGB drain.
+            # Example here https://docs.nicekeyboards.com/#/nice!nano/pinout_schematic
+
+            if not self._psp:
+                self._psp = digitalio.DigitalInOut(self.powersave_pin)
+                self._psp.direction = digitalio.Direction.OUTPUT
+            if self._psp:
+                self._psp.value = True
 
         self.enable = True
         keyboard._trigger_powersave_enable = False

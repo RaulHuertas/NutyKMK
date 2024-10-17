@@ -176,16 +176,16 @@ def maybe_make_fn_key(candidate: str) -> Optional[Key]:
         (67, ('F10',)),
         (68, ('F11',)),
         (69, ('F12',)),
-        # (104, ('F13',)),
-        # (105, ('F14',)),
-        # (106, ('F15',)),
-        # (107, ('F16',)),
-        # (108, ('F17',)),
-        # (109, ('F18',)),
-        # (110, ('F19',)),
-        # (111, ('F20',)),
-        # (112, ('F21',)),
-        # (113, ('F22',)),
+        #(104, ('F13',)),
+        #(105, ('F14',)),
+        #(106, ('F15',)),
+        #(107, ('F16',)),
+        #(108, ('F17',)),
+        #(109, ('F18',)),
+        #(110, ('F19',)),
+        #(111, ('F20',)),
+        #(112, ('F21',)),
+        #(113, ('F22',)),
         (114, ('F23',)),
         #(115, ('F24',)),
     )
@@ -225,106 +225,104 @@ def maybe_make_navlock_key(candidate: str) -> Optional[Key]:
 
 
 def maybe_make_numpad_key(candidate: str) -> Optional[Key]:
-    # codes = (
-    #     (83, ('NUM_LOCK', 'NUMLOCK', 'NLCK')),
-    #     (84, ('KP_SLASH', 'NUMPAD_SLASH', 'PSLS')),
-    #     (85, ('KP_ASTERISK', 'NUMPAD_ASTERISK', 'PAST')),
-    #     (86, ('KP_MINUS', 'NUMPAD_MINUS', 'PMNS')),
-    #     (87, ('KP_PLUS', 'NUMPAD_PLUS', 'PPLS')),
-    #     (88, ('KP_ENTER', 'NUMPAD_ENTER', 'PENT')),
-    #     (89, ('KP_1', 'P1', 'NUMPAD_1')),
-    #     (90, ('KP_2', 'P2', 'NUMPAD_2')),
-    #     (91, ('KP_3', 'P3', 'NUMPAD_3')),
-    #     (92, ('KP_4', 'P4', 'NUMPAD_4')),
-    #     (93, ('KP_5', 'P5', 'NUMPAD_5')),
-    #     (94, ('KP_6', 'P6', 'NUMPAD_6')),
-    #     (95, ('KP_7', 'P7', 'NUMPAD_7')),
-    #     (96, ('KP_8', 'P8', 'NUMPAD_8')),
-    #     (97, ('KP_9', 'P9', 'NUMPAD_9')),
-    #     (98, ('KP_0', 'P0', 'NUMPAD_0')),
-    #     (99, ('KP_DOT', 'PDOT', 'NUMPAD_DOT')),
-    #     (103, ('KP_EQUAL', 'PEQL', 'NUMPAD_EQUAL')),
-    #     (133, ('KP_COMMA', 'PCMM', 'NUMPAD_COMMA')),
-    #     (134, ('KP_EQUAL_AS400', 'NUMPAD_EQUAL_AS400')),
-    # )
-
-    # for code, names in codes:
-    #     if candidate in names:
-    #         return make_key(names=names, constructor=KeyboardKey, code=code)
-    pass
-
-
-def maybe_make_shifted_key(candidate: str) -> Optional[Key]:
-    pass
-    # codes = (
-    #     (30, ('EXCLAIM', 'EXLM', '!')),
-    #     (31, ('AT', '@')),
-    #     (32, ('HASH', 'POUND', '#')),
-    #     (33, ('DOLLAR', 'DLR', '$')),
-    #     (34, ('PERCENT', 'PERC', '%')),
-    #     (35, ('CIRCUMFLEX', 'CIRC', '^')),
-    #     (36, ('AMPERSAND', 'AMPR', '&')),
-    #     (37, ('ASTERISK', 'ASTR', '*')),
-    #     (38, ('LEFT_PAREN', 'LPRN', '(')),
-    #     (39, ('RIGHT_PAREN', 'RPRN', ')')),
-    #     (45, ('UNDERSCORE', 'UNDS', '_')),
-    #     (46, ('PLUS', '+')),
-    #     (47, ('LEFT_CURLY_BRACE', 'LCBR', '{')),
-    #     (48, ('RIGHT_CURLY_BRACE', 'RCBR', '}')),
-    #     (49, ('PIPE', '|')),
-    #     (51, ('COLON', 'COLN', ':')),
-    #     (52, ('DOUBLE_QUOTE', 'DQUO', 'DQT', '"')),
-    #     (53, ('TILDE', 'TILD', '~')),
-    #     (54, ('LEFT_ANGLE_BRACKET', 'LABK', '<')),
-    #     (55, ('RIGHT_ANGLE_BRACKET', 'RABK', '>')),
-    #     (56, ('QUESTION', 'QUES', '?')),
-    # )
-
-    # for code, names in codes:
-    #     if candidate in names:
-    #         return make_key(
-    #             names=names, constructor=ModifiedKey, code=code, modifier=KC.LSFT
-    #         )
-
-
-def maybe_make_international_key(candidate: str) -> Optional[Key]:
     codes = (
-         (50, ('NONUS_HASH', 'NUHS')),
-         (100, ('NONUS_BSLASH', 'NUBS')),
-         (101, ('APP', 'APPLICATION', 'SEL', 'WINMENU')),
-    #     (135, ('INT1', 'RO')),
-    #     (136, ('INT2', 'KANA')),
-    #     (137, ('INT3', 'JYEN')),
-    #     (138, ('INT4', 'HENK')),
-    #     (139, ('INT5', 'MHEN')),
-    #     (140, ('INT6',)),
-    #     (141, ('INT7',)),
-    #     (142, ('INT8',)),
-    #     (143, ('INT9',)),
-    #     (144, ('LANG1', 'HAEN')),
-    #     (145, ('LANG2', 'HAEJ')),
-    #     (146, ('LANG3',)),
-    #     (147, ('LANG4',)),
-    #     (148, ('LANG5',)),
-    #     (149, ('LANG6',)),
-    #     (150, ('LANG7',)),
-    #     (151, ('LANG8',)),
-    #     (152, ('LANG9',)),
+        (83, ('NUM_LOCK', 'NUMLOCK', 'NLCK')),
+        (84, ('KP_SLASH', 'NUMPAD_SLASH', 'PSLS')),
+        (85, ('KP_ASTERISK', 'NUMPAD_ASTERISK', 'PAST')),
+        (86, ('KP_MINUS', 'NUMPAD_MINUS', 'PMNS')),
+        (87, ('KP_PLUS', 'NUMPAD_PLUS', 'PPLS')),
+        (88, ('KP_ENTER', 'NUMPAD_ENTER', 'PENT')),
+        (89, ('KP_1', 'P1', 'NUMPAD_1')),
+        (90, ('KP_2', 'P2', 'NUMPAD_2')),
+        (91, ('KP_3', 'P3', 'NUMPAD_3')),
+        (92, ('KP_4', 'P4', 'NUMPAD_4')),
+        (93, ('KP_5', 'P5', 'NUMPAD_5')),
+        (94, ('KP_6', 'P6', 'NUMPAD_6')),
+        (95, ('KP_7', 'P7', 'NUMPAD_7')),
+        (96, ('KP_8', 'P8', 'NUMPAD_8')),
+        (97, ('KP_9', 'P9', 'NUMPAD_9')),
+        (98, ('KP_0', 'P0', 'NUMPAD_0')),
+        (99, ('KP_DOT', 'PDOT', 'NUMPAD_DOT')),
+        (103, ('KP_EQUAL', 'PEQL', 'NUMPAD_EQUAL')),
+        (133, ('KP_COMMA', 'PCMM', 'NUMPAD_COMMA')),
+        (134, ('KP_EQUAL_AS400', 'NUMPAD_EQUAL_AS400')),
     )
 
     for code, names in codes:
         if candidate in names:
             return make_key(names=names, constructor=KeyboardKey, code=code)
-    pass
+
+
+def maybe_make_shifted_key(candidate: str) -> Optional[Key]:
+    codes = (
+        (30, ('EXCLAIM', 'EXLM', '!')),
+        (31, ('AT', '@')),
+        (32, ('HASH', 'POUND', '#')),
+        (33, ('DOLLAR', 'DLR', '$')),
+        (34, ('PERCENT', 'PERC', '%')),
+        (35, ('CIRCUMFLEX', 'CIRC', '^')),
+        (36, ('AMPERSAND', 'AMPR', '&')),
+        (37, ('ASTERISK', 'ASTR', '*')),
+        (38, ('LEFT_PAREN', 'LPRN', '(')),
+        (39, ('RIGHT_PAREN', 'RPRN', ')')),
+        (45, ('UNDERSCORE', 'UNDS', '_')),
+        (46, ('PLUS', '+')),
+        (47, ('LEFT_CURLY_BRACE', 'LCBR', '{')),
+        (48, ('RIGHT_CURLY_BRACE', 'RCBR', '}')),
+        (49, ('PIPE', '|')),
+        (51, ('COLON', 'COLN', ':')),
+        (52, ('DOUBLE_QUOTE', 'DQUO', 'DQT', '"')),
+        (53, ('TILDE', 'TILD', '~')),
+        (54, ('LEFT_ANGLE_BRACKET', 'LABK', '<')),
+        (55, ('RIGHT_ANGLE_BRACKET', 'RABK', '>')),
+        (56, ('QUESTION', 'QUES', '?')),
+    )
+
+    for code, names in codes:
+        if candidate in names:
+            return make_key(
+                names=names, constructor=ModifiedKey, code=code, modifier=KC.LSFT
+            )
+
+
+def maybe_make_international_key(candidate: str) -> Optional[Key]:
+    codes = (
+        (50, ('NONUS_HASH', 'NUHS')),
+        (100, ('NONUS_BSLASH', 'NUBS')),
+        (101, ('APP', 'APPLICATION', 'SEL', 'WINMENU')),
+        #(135, ('INT1', 'RO')),
+        #(136, ('INT2', 'KANA')),
+        #(137, ('INT3', 'JYEN')),
+        #(138, ('INT4', 'HENK')),
+        #(139, ('INT5', 'MHEN')),
+        #(140, ('INT6',)),
+        #(141, ('INT7',)),
+        #(142, ('INT8',)),
+        #(143, ('INT9',)),
+        #(144, ('LANG1', 'HAEN')),
+        #(145, ('LANG2', 'HAEJ')),
+        #(146, ('LANG3',)),
+        #(147, ('LANG4',)),
+        #(148, ('LANG5',)),
+        #(149, ('LANG6',)),
+        #(150, ('LANG7',)),
+        #(151, ('LANG8',)),
+        #(152, ('LANG9',)),
+    )
+
+    for code, names in codes:
+        if candidate in names:
+            return make_key(names=names, constructor=KeyboardKey, code=code)
+
 
 def maybe_make_firmware_key(candidate: str) -> Optional[Key]:
     keys = (
         ((('BLE_REFRESH',), handlers.ble_refresh)),
         ((('BLE_DISCONNECT',), handlers.ble_disconnect)),
-        ((('BOOTLOADER',), handlers.bootloader)),
+        #((('BOOTLOADER',), handlers.bootloader)),
         ((('DEBUG', 'DBG'), handlers.debug_pressed)),
-        ((('HID_SWITCH', 'HID'), handlers.hid_switch)),
-        ((('RELOAD', 'RLD'), handlers.reload)),
+        #((('HID_SWITCH', 'HID'), handlers.hid_switch)),
+        #((('RELOAD', 'RLD'), handlers.reload)),
         ((('RESET',), handlers.reset)),
         ((('ANY',), handlers.any_pressed)),
     )
@@ -365,7 +363,7 @@ KEY_GENERATORS = (
     # the 'shifted' keys as raw keys. Under the hood we're still
     # sending Shift+(whatever key is normally pressed) to get these, so
     # for example `KC_AT` will hold shift and press 2.
-    maybe_make_shifted_key,
+    #maybe_make_shifted_key,
     # International
     maybe_make_international_key,
 )
