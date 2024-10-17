@@ -137,7 +137,8 @@ class Split(Module):
                     self._uart = self.PIO_UART(tx=self.data_pin, rx=self.data_pin2)
                 else:
                     self._uart = busio.UART(
-                        tx=self.data_pin, rx=self.data_pin2, timeout=self._uart_interval
+                        tx=self.data_pin, rx=self.data_pin2, timeout=self._uart_interval,
+                        baudrate=115200
                     )
 
         # Attempt to sanely guess a coord_mapping if one is not provided.

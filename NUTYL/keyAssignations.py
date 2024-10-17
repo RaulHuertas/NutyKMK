@@ -145,8 +145,8 @@ def assignKeys ():
     layer2Asignations[1] =  kc.INSERT
     layer2Asignations[2] =  kc.HOME
     layer2Asignations[3] =  kc.PGUP
-    layer2Asignations[4] =  noAsg
-    layer2Asignations[5] =  noAsg
+    layer2Asignations[4] =  kc.BLE_DISCONNECT
+    layer2Asignations[5] =  kc.BLE_REFRESH
 
     layer2Asignations[6] =  kc.MB_MMB
     layer2Asignations[7] =  kc.MB_LMB

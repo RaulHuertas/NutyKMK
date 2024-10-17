@@ -68,9 +68,9 @@ class SplitUART(Module):
         if  self.data_pin is not None:            
             self._uart = busio.UART(
                     tx=self.data_pin2, 
-                    rx=self.data_pin,
+                    rx=self.data_pin, 
                     timeout=self._uart_interval,
-                    baudrate=115200,
+                    baudrate=115200
             )
 
        
