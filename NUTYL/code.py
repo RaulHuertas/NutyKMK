@@ -219,11 +219,7 @@ def initKB():
         def updateLights(self):
             
             nowT = monotonic()
-            #blink pulse             
-            pulsePosition = (nowT)/2.0 #blink period
-            pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
-            pulseHighPosition = (nowT)/0.4 #blink period
-            pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
+            
             #wpmHigh
             if((nowT-self.startTime)>1):#update wmpHigh
                 self.startTime = nowT
@@ -238,10 +234,15 @@ def initKB():
             ######LEDS status######
             #######################
 
-            if ((nowT-self.ledAnimTime)<0.050):
+            if ((nowT-self.ledAnimTime)<0.100):
                 return
             
-
+            #blink pulse             
+            pulsePosition = (nowT)/2.0 #blink period
+            pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
+            pulseHighPosition = (nowT)/0.4 #blink period
+            pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
+            
             #####BOARD LEDS
             if not bleEnabled:
                 if self.wpmHigh :
@@ -315,7 +316,6 @@ def initKB():
 
         def before_matrix_scan(self, sandbox):
             super().before_matrix_scan(sandbox)
-            return
             self.updateLights()
 
         def after_matrix_scan(self, keyboard):
