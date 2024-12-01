@@ -357,7 +357,7 @@ if __name__ == '__main__':
     
     kb = initKB()
     
-    kb.debug_enabled = False
+    kb.debug_enabled = True
     
     if bleEnabled:
         kb.powersave_enable = True
