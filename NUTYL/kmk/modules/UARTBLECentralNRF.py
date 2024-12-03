@@ -30,6 +30,13 @@ class UARTBLECentralNRF:
     def longDisconnected(self):
         return self.connectionFails > 5
     
+    def connected(self):
+        return self.connectionState == CONNECTED
+    
+    def evaluate(self):
+        if self.connectionState != CONNECTED:
+            self.evaluateConnecting()
+
     def evaluateConnecting(self):
         #since this side won't connect to the host, 
         #the central can block
@@ -73,7 +80,7 @@ class UARTBLECentralNRF:
             connOK = True
         except:
             pass
-        if not connOK:
+        if not connOK or not self.ble.connected:
             self.connectionState = CONNECTING
 
     def readline(self) -> bytes | None:
@@ -87,7 +94,7 @@ class UARTBLECentralNRF:
             connOK = True
         except:
             pass
-        if not connOK:
+        if not connOK or not self.ble.connected :
             self.connectionState = CONNECTING
             return b""
         return s
@@ -103,7 +110,7 @@ class UARTBLECentralNRF:
             connOK = True
         except:
             pass
-        if not connOK:
+        if not connOK or not self.ble.connected:
             self.connectionState = CONNECTING
 
          
