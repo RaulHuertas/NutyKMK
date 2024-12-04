@@ -6,16 +6,24 @@ import time;
 CONNECTING = 0
 CONNECTED = 1
 
-class UARTBLEPeripheralNRF:
+class UARTBLECentralNRF:
     ble = None
     name = ""
     uart = None
+    advertisement = None
+    #enums for connection status
+    #trackin how many time connection has failed
+    connectionState = CONNECTING
     connectionFails = 0
     readTimeout = 0.1
 
     def __init__(self, name):
         self.name = name
         self.ble = BLERadio()
+        self.ble.name = self.name
+        self.uart = UARTService()
+        self.advertisement = ProvideServicesAdvertisement(self.uart)
+        self.advertisement.short_name = self.name
         self.connectionState = CONNECTING
         self.connectionFails = 0
 
@@ -32,38 +40,33 @@ class UARTBLEPeripheralNRF:
     def evaluateConnecting(self):
         #since this side won't connect to the host, 
         #the central can block
-        print("z0")
-        devicesFound =  self.ble.start_scan(ProvideServicesAdvertisement,timeout = 1)
-        for adv in devicesFound:
-            print((adv))
-            print((adv.short_name))
-            if adv.short_name != self.name:
-                continue;
-            if UARTService in adv.services:
-                print("expected device found!") 
-                serviceOk = False
-                try:
-                    self.uart = self.ble.connect(adv)
-                    self.uart = self.uart[UARTService]
-                    serviceOk = True
-                except:
-                    pass
-                if serviceOk:
-                    self.connectionState = CONNECTED
-                    self.connectionFails = 0
-                    print("Connected")
-                    break
-    
-        if not self.connected():
+        advertisingTimeUnit = 0.625
+        timeout_s = 5
+        if self.longDisconnected():
+            timeout_s = 5
+        print("Advertising...")
+        self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit*4, timeout=timeout_s)
+        accumWaitingTime = 0
+        
+        while not self.ble.connected and accumWaitingTime<timeout_s:
+            time.sleep(1)
+            accumWaitingTime += 1
+        
+        
+        if self.ble.connected:
+            self.connectionState = CONNECTED
+            self.connectionFails = 0
+            print("Connected")
+            return
+        else:
             self.connectionFails += 1
-            
-        time.sleep(3)
-        self.ble.stop_scan()
-       
-    def disconnect(self):
-        self.connectionState = CONNECTING
-        self.connectionFails = 0
-        self.uart  = None
+
+        self.ble.stop_advertising()
+        if self.longDisconnected():
+            time.sleep(5)
+        else:
+            time.sleep(2)
+        
 
     def write(self,buf: circuitpython_typing.ReadableBuffer):
         if self.connectionState != CONNECTED:
@@ -78,27 +81,22 @@ class UARTBLEPeripheralNRF:
         except:
             pass
         if not connOK or not self.ble.connected:
-           self.disconnect()    
+            self.connectionState = CONNECTING
 
     def readline(self) -> bytes | None:
         if self.connectionState != CONNECTED:
             self.evaluateConnecting()
-            print("x1")
             return None
         #connected
-        #print("x2")
-        s = None
+        connOK = False
         try:
             s = self.uart.readline()
-            #print("x3")
+            connOK = True
         except:
-            print("x4")
             pass
-        if not self.ble.connected :
-            self.disconnect()
-            print("x5")
-        
-        #print("x6")
+        if not connOK or not self.ble.connected :
+            self.connectionState = CONNECTING
+            return b""
         return s
     
     def read(self, nbytes: int | None = None ):
@@ -106,13 +104,13 @@ class UARTBLEPeripheralNRF:
             self.evaluateConnecting()
             return
         #connected
-        retValue = None
+        connOK = False
         try:
-            retValue = self.uart.read(nbytes)
+            self.uart.read(nbytes)
+            connOK = True
         except:
             pass
-        if  not self.ble.connected:
-            self.disconnect()
+        if not connOK or not self.ble.connected:
+            self.connectionState = CONNECTING
 
-        return retValue
          
