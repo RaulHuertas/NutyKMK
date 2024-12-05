@@ -10,6 +10,7 @@ class UARTBLEPeripheralNRF:
     ble = None
     name = ""
     uart = None
+    uartConn = None
     connectionFails = 0
     readTimeout = 0.1
     restingForScan = False
@@ -35,7 +36,7 @@ class UARTBLEPeripheralNRF:
     
     def evaluate(self):
         if self.connectionState == CONNECTED:
-            if not self.ble.connected :
+            if not self.uartConn.connected :
                 self.disconnect()
         else:
             self.evaluateConnecting()
@@ -59,8 +60,8 @@ class UARTBLEPeripheralNRF:
                 print("expected device found!") 
                 serviceOk = False
                 try:
-                    self.uart = self.ble.connect(adv)
-                    self.uart = self.uart[UARTService]
+                    self.uartConn = self.ble.connect(adv)
+                    self.uart = self.uartConn[UARTService]
                     serviceOk = True
                 except:
                     pass
@@ -76,11 +77,10 @@ class UARTBLEPeripheralNRF:
         #time.sleep(3)
         self.ble.stop_scan()
 
-
-       
     def disconnect(self):
         self.connectionState = CONNECTING
         self.connectionFails = 0
+        self.uartConn  = None
         self.uart  = None
         self.restingStartTime = time.monotonic()-3
 

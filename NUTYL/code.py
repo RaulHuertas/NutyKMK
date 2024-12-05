@@ -129,15 +129,10 @@ def initKB():
 
     split = None
     if bleEnabled:
-        from kmk.modules.split import Split, SplitSide, SplitType
-        split = Split(
+        from kmk.modules.splitbl import SplitBL, SplitSide, SplitRole
+        split = SplitBL(
             split_side=SplitSide.LEFT,
-            #split_side=None,
-            split_type=SplitType.UART,
-            split_target_left=True,
-            data_pin = board.D9,#RX
-            data_pin2 = board.D10,#TX
-            uart_flip = False,
+            split_role=SplitRole.Secondary,
             debug_enabled = False 
         )
     else:
@@ -151,7 +146,6 @@ def initKB():
             debug_enabled = False
         )
     
-
 
 
 

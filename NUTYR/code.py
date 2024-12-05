@@ -8,10 +8,9 @@ WHITE = (255, 255, 255)
 YELLOW = (128, 128, 0)
 import time
 
-""" import  _bleio;
-_bleio.adapter.erase_bonding()
-del _bleio
- """
+
+
+testing  = False
 
 def isItOn(cols, rows, keyIndex):
     nCol = len(cols)
@@ -52,6 +51,10 @@ def isItOn(cols, rows, keyIndex):
 
     return not returnVal
 
+def restartBLE():
+    import _bleio
+    _bleio.adapter.erase_bonding()
+
 bleSelectButton = 18
 import board
 col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
@@ -62,6 +65,12 @@ row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
 #    time.sleep(1)
 bleEnabled = isItOn(col_pins, row_pins, bleSelectButton)
 print("BLE enabled: ",bleEnabled)
+if bleEnabled:
+    if isItOn(col_pins, row_pins, 5) and isItOn(col_pins, row_pins, 5):
+        import _bleio
+        _bleio.adapter.erase_bonding()
+        print("Erased bonding")
+
 del isItOn
 del board
 del col_pins
@@ -87,8 +96,8 @@ def initKB():
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
     diode_orientation = DiodeOrientation.ROW2COL
     if not bleEnabled:
-        from kmk.kmk_keyboard import  KMKKeyboard
-        class MyKeyboard(KMKKeyboard):
+        from kmk.usbkb import  USBKB
+        class MyKeyboard(USBKB):
             def __init__(self, col_pins, row_pins):   
                 # create and register the scanner
                 self.matrix = MatrixScanner(
@@ -98,7 +107,7 @@ def initKB():
                     # optional arguments with defaults:
                     columns_to_anodes=diode_orientation,
                     interval=0.020,  # Debounce time in floating point seconds
-                    max_events=2
+                    max_events=4
                 )
         keyboard = MyKeyboard(col_pins, row_pins)
     else:
@@ -133,7 +142,7 @@ def initKB():
         split = SplitBL(
             split_side=SplitSide.RIGHT,
             split_role=SplitRole.Primary,
-            debug_enabled = True 
+            debug_enabled = testing 
         )
     else:
         from kmk.modules.splituart import SplitUART, SplitSide
@@ -145,7 +154,7 @@ def initKB():
             data_pin = board.D5,#RX
             data_pin2 = board.D6,#TX
             #uart_flip = False,
-            debug_enabled = False
+            debug_enabled = testing
         )
     
     class RGBLayers(Layers):
@@ -154,7 +163,7 @@ def initKB():
             self.br =brightness
             if not bleEnabled:
                 from neopixel import NeoPixel
-                self.rgbStrip =  NeoPixel(pin, 29,brightness=self.br , auto_write=False)      
+                self.rgbStrip =  NeoPixel(pin, 6,brightness=self.br , auto_write=False)      
             self.wpmC = 0
             self.wpmHigh = False
             
@@ -385,7 +394,7 @@ if __name__ == '__main__':
     
     kb = initKB()
     
-    kb.debug_enabled = True
+    kb.debug_enabled = testing
     
     if bleEnabled:
         kb.powersave_enable = True

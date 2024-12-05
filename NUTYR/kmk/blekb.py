@@ -53,7 +53,7 @@ class BLEKB:
     keys_pressed = set()
     axes = set()
     _coordkeys_pressed = {}
-    hid_type = HIDModes.USB
+    hid_type = HIDModes.BLE
     secondary_hid_type = None
     _hid_helper = None
     _hid_send_enabled = False

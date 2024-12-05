@@ -260,14 +260,13 @@ class BLEHID(AbstractHID):
         self.hid = HIDService()
         self.hid.protocol_mode = 0  # Boot protocol
         super().__init__(**kwargs)
-
+        self.stop_advertising()
         # Security-wise this is not right. While you're away someone turns
         # on your keyboard and they can pair with it nice and clean and then
         # listen to keystrokes.
         # On the other hand we don't have LESC so it's like shouting your
         # keystrokes in the air
         if not self.ble.connected or not self.hid.devices:
-            print("start advertising")
             self.start_advertising()
 
     @property
@@ -324,10 +323,13 @@ class BLEHID(AbstractHID):
         _bleio.adapter.erase_bonding()
 
     def start_advertising(self):
+        print("start_advertising 1")
         if not self.ble.advertising:
+            print("start_advertising 2")
             advertisement = ProvideServicesAdvertisement(self.hid)
             advertisement.appearance = self.BLE_APPEARANCE_HID_KEYBOARD
             self.ble.start_advertising(advertisement,timeout=12)
 
     def stop_advertising(self):
+        print("stop_advertising")
         self.ble.stop_advertising()
