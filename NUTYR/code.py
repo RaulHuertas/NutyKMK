@@ -8,6 +8,11 @@ WHITE = (255, 255, 255)
 YELLOW = (128, 128, 0)
 import time
 
+""" import  _bleio;
+_bleio.adapter.erase_bonding()
+del _bleio
+ """
+
 def isItOn(cols, rows, keyIndex):
     nCol = len(cols)
     nRow = len(rows)
@@ -67,8 +72,7 @@ def initKB():
     #from kmk.modules.mouse_keys import MouseKeys
     #from kmk.modules.spUart import SplitUART, SplitSide
     
-    from kmk.kmk_keyboard import KMKKeyboard
-   
+    #from kmk.kbble import KMKBLEKeyboard as KMKKeyboard
     from kmk.scanners import DiodeOrientation
 
     from kmk.scanners.keypad import MatrixScanner
@@ -82,19 +86,36 @@ def initKB():
     col_pins = (board.NFC1,board.NFC2,board.D7,board.D8, board.D9,board.D10)
     row_pins = (board.D1,board.D2,board.D3 ,board.D4,)
     diode_orientation = DiodeOrientation.ROW2COL
-    class MyKeyboard(KMKKeyboard):
-        def __init__(self, col_pins, row_pins):   
-            # create and register the scanner
-            self.matrix = MatrixScanner(
-                # required arguments:
-                column_pins=col_pins,
-                row_pins=row_pins,
-                # optional arguments with defaults:
-                columns_to_anodes=diode_orientation,
-                interval=0.020,  # Debounce time in floating point seconds
-                max_events=2
-            )
-    keyboard = MyKeyboard(col_pins, row_pins)
+    if not bleEnabled:
+        from kmk.kmk_keyboard import  KMKKeyboard
+        class MyKeyboard(KMKKeyboard):
+            def __init__(self, col_pins, row_pins):   
+                # create and register the scanner
+                self.matrix = MatrixScanner(
+                    # required arguments:
+                    column_pins=col_pins,
+                    row_pins=row_pins,
+                    # optional arguments with defaults:
+                    columns_to_anodes=diode_orientation,
+                    interval=0.020,  # Debounce time in floating point seconds
+                    max_events=2
+                )
+        keyboard = MyKeyboard(col_pins, row_pins)
+    else:
+        from kmk.kbble import KMKBLEKeyboard 
+        class MyKeyboard(KMKBLEKeyboard):
+            def __init__(self, col_pins, row_pins):   
+                # create and register the scanner
+                self.matrix = MatrixScanner(
+                    # required arguments:
+                    column_pins=col_pins,
+                    row_pins=row_pins,
+                    # optional arguments with defaults:
+                    columns_to_anodes=diode_orientation,
+                    interval=0.020,  # Debounce time in floating point seconds
+                    max_events=2
+                )
+        keyboard = MyKeyboard(col_pins, row_pins)
 
 
     keyboard.coord_mapping =  [
@@ -107,17 +128,25 @@ def initKB():
         18, 19, 20, 21, 22, 23 ,
         42, 43, 44, 45, 46, 47,
     ]
-    from kmk.modules.splituart import SplitUART, SplitSide
-        
-    split = SplitUART(
-        split_side=SplitSide.RIGHT,
-        #split_type=SplitType.UART,
-        split_target_left=True,
-        data_pin = board.D5,#RX
-        data_pin2 = board.D6,#TX
-        #uart_flip = False,
-        debug_enabled = False
-    )
+    if bleEnabled:
+        from kmk.modules.splitbl import SplitBL, SplitSide, SplitRole
+        split = SplitBL(
+            split_side=SplitSide.RIGHT,
+            split_role=SplitRole.Primary,
+            debug_enabled = True 
+        )
+    else:
+        from kmk.modules.splituart import SplitUART, SplitSide
+            
+        split = SplitUART(
+            split_side=SplitSide.RIGHT,
+            #split_type=SplitType.UART,
+            split_target_left=True,
+            data_pin = board.D5,#RX
+            data_pin2 = board.D6,#TX
+            #uart_flip = False,
+            debug_enabled = False
+        )
     
     class RGBLayers(Layers):
         def __init__(self, pin, brightness=0.2):
@@ -332,7 +361,6 @@ def initKB():
             MidiKeys()
         ]
     
-    del SplitUART
     #del Split
     del board
     del Layers
@@ -364,3 +392,4 @@ if __name__ == '__main__':
         kb.go()
     else:
         kb.go()
+
