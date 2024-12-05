@@ -19,8 +19,13 @@ class UARTBLEPeripheralNRF:
         self.ble = BLERadio()
         self.connectionState = CONNECTING
         self.connectionFails = 0
-        self.restingStartTime = time.monotonic()
-
+        self.restingStartTime = time.monotonic()-5
+    @property
+    def in_waiting(self):
+        if self.uart is  None:
+            return 0
+        return self.uart.in_waiting
+    
     def longDisconnected(self):
         return self.connectionFails > 5
     
@@ -28,14 +33,17 @@ class UARTBLEPeripheralNRF:
         return self.connectionState == CONNECTED
     
     def evaluate(self):
-        if self.connectionState != CONNECTED:
+        if self.connectionState == CONNECTED:
+            if not self.ble.connected :
+                self.disconnect()
+        else:
             self.evaluateConnecting()
 
     def evaluateConnecting(self):
         now = time.monotonic()
         if((now-self.restingStartTime) < 3):
             return
-    #since this side won't connect to the host, 
+        #since this side won't connect to the host, 
         #the central can block
         print("z0")
         devicesFound =  self.ble.start_scan(ProvideServicesAdvertisement,timeout = 1)
@@ -110,16 +118,22 @@ class UARTBLEPeripheralNRF:
         return s
     
     def read(self, nbytes: int | None = None ):
+        if nbytes is None:
+            return None
+        if nbytes == 0:
+            return None
         if self.connectionState != CONNECTED:
             self.evaluateConnecting()
-            return
+            return None
         #connected
         retValue = None
+        connOK = False
         try:
             retValue = self.uart.read(nbytes)
+            connOK = True
         except:
             pass
-        if  not self.ble.connected:
+        if  not connOK  or not self.ble.connected:
             self.disconnect()
 
         return retValue

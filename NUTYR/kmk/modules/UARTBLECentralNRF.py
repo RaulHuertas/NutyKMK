@@ -34,9 +34,18 @@ class UARTBLECentralNRF:
         return self.connectionState == CONNECTED
     
     def evaluate(self):
-        if self.connectionState != CONNECTED:
+        if self.connectionState == CONNECTED:
+            if not self.ble.connected :
+                self.disconnect()
+        else:
             self.evaluateConnecting()
-
+    
+    @property
+    def in_waiting(self):
+        if self.uart is  None:
+            return 0
+        return self.uart.in_waiting
+    
     def evaluateConnecting(self):
         #since this side won't connect to the host, 
         #the central can block
@@ -48,11 +57,11 @@ class UARTBLECentralNRF:
         self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit*4, timeout=timeout_s)
         accumWaitingTime = 0
         
-        while not self.ble.connected and accumWaitingTime<timeout_s:
+        while (not self.ble.connected) and accumWaitingTime<timeout_s:
             time.sleep(1)
             accumWaitingTime += 1
-        
-        
+        print("stop_advertising...")
+        self.ble.stop_advertising()
         if self.ble.connected:
             self.connectionState = CONNECTED
             self.connectionFails = 0
@@ -61,12 +70,15 @@ class UARTBLECentralNRF:
         else:
             self.connectionFails += 1
 
-        self.ble.stop_advertising()
         if self.longDisconnected():
             time.sleep(5)
         else:
             time.sleep(2)
         
+    def disconnect(self):
+        self.connectionState = CONNECTING
+        self.connectionFails = 0
+        self.uart  = None
 
     def write(self,buf: circuitpython_typing.ReadableBuffer):
         if self.connectionState != CONNECTED:
@@ -80,8 +92,8 @@ class UARTBLECentralNRF:
             connOK = True
         except:
             pass
-        if not connOK or not self.ble.connected:
-            self.connectionState = CONNECTING
+        if  not self.ble.connected:
+            self.disconnect()
 
     def readline(self) -> bytes | None:
         if self.connectionState != CONNECTED:
@@ -95,22 +107,27 @@ class UARTBLECentralNRF:
         except:
             pass
         if not connOK or not self.ble.connected :
-            self.connectionState = CONNECTING
+            self.disconnect()
             return b""
         return s
     
     def read(self, nbytes: int | None = None ):
+        if nbytes is None:
+            return None
+        if nbytes == 0:
+            return None
         if self.connectionState != CONNECTED:
             self.evaluateConnecting()
-            return
+            return None
         #connected
+        retValue = None
         connOK = False
         try:
-            self.uart.read(nbytes)
+            retValue = self.uart.read(nbytes)
             connOK = True
         except:
             pass
         if not connOK or not self.ble.connected:
-            self.connectionState = CONNECTING
+            self.disconnect()
 
-         
+        return retValue
