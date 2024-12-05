@@ -305,7 +305,8 @@ class BLEHID(AbstractHID):
         # On the other hand we don't have LESC so it's like shouting your
         # keystrokes in the air
         if not self.ble.connected or not self.hid.devices:
-            self.start_advertising()
+           # self.start_advertising()
+           pass
 
     @property
     def devices(self):

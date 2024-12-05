@@ -15,6 +15,7 @@ class UARTBLEPeripheralNRF:
     restingForScan = False
     restingStartTime = 0
     def __init__(self, name):
+        
         self.name = name
         self.ble = BLERadio()
         self.connectionState = CONNECTING
@@ -43,6 +44,8 @@ class UARTBLEPeripheralNRF:
         now = time.monotonic()
         if((now-self.restingStartTime) < 3):
             return
+        if self.ble.advertising:
+            return#avoiding error 0011
         #since this side won't connect to the host, 
         #the central can block
         print("scanning split pair...")

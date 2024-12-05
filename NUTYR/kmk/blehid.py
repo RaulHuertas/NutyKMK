@@ -327,8 +327,7 @@ class BLEHID(AbstractHID):
         if not self.ble.advertising:
             advertisement = ProvideServicesAdvertisement(self.hid)
             advertisement.appearance = self.BLE_APPEARANCE_HID_KEYBOARD
-
-            self.ble.start_advertising(advertisement)
+            self.ble.start_advertising(advertisement,timeout=12)
 
     def stop_advertising(self):
         self.ble.stop_advertising()

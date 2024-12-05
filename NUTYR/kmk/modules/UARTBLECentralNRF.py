@@ -21,8 +21,9 @@ class UARTBLECentralNRF:
         self.name = name
         self.ble = BLERadio()
         self.ble.name = self.name
-        
         self.uart = UARTService()
+        self.advertisement = ProvideServicesAdvertisement(self.uart)
+        self.advertisement.short_name = self.name
         self.connectionState = CONNECTING
         self.connectionFails = 0
 
@@ -33,39 +34,25 @@ class UARTBLECentralNRF:
         return self.connectionState == CONNECTED
     
     def evaluate(self):
-        if self.connectionState == CONNECTED:
-            if not self.ble.connected :
-                self.disconnect()
-        else:
+        if self.connectionState != CONNECTED:
             self.evaluateConnecting()
-    
-    @property
-    def in_waiting(self):
-        if self.uart is  None:
-            return 0
-        return self.uart.in_waiting
-    
+
     def evaluateConnecting(self):
         #since this side won't connect to the host, 
         #the central can block
         advertisingTimeUnit = 0.625
-        timeout_s = 10
+        timeout_s = 5
         if self.longDisconnected():
             timeout_s = 5
         print("Advertising...")
-        #self.uart.deinit()
-        #self.uart = UARTService()
-        self.advertisement = ProvideServicesAdvertisement(self.uart)
-        self.advertisement.short_name = self.name
         self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit*4, timeout=timeout_s)
         accumWaitingTime = 0
         
-        while (not self.ble.connected) and accumWaitingTime<timeout_s:
+        while not self.ble.connected and accumWaitingTime<timeout_s:
             time.sleep(1)
             accumWaitingTime += 1
-        print("stop_advertising...")
         
-        self.ble.stop_advertising()
+        
         if self.ble.connected:
             self.connectionState = CONNECTED
             self.connectionFails = 0
@@ -73,16 +60,13 @@ class UARTBLECentralNRF:
             return
         else:
             self.connectionFails += 1
+
+        self.ble.stop_advertising()
         if self.longDisconnected():
             time.sleep(5)
         else:
-            time.sleep(timeout_s)
+            time.sleep(2)
         
-        
-    def disconnect(self):
-        self.connectionState = CONNECTING
-        self.connectionFails = 0
-        #self.uart  = None
 
     def write(self,buf: circuitpython_typing.ReadableBuffer):
         if self.connectionState != CONNECTED:
@@ -96,8 +80,8 @@ class UARTBLECentralNRF:
             connOK = True
         except:
             pass
-        if  not self.ble.connected:
-            self.disconnect()
+        if not connOK or not self.ble.connected:
+            self.connectionState = CONNECTING
 
     def readline(self) -> bytes | None:
         if self.connectionState != CONNECTED:
@@ -111,27 +95,22 @@ class UARTBLECentralNRF:
         except:
             pass
         if not connOK or not self.ble.connected :
-            self.disconnect()
+            self.connectionState = CONNECTING
             return b""
         return s
     
     def read(self, nbytes: int | None = None ):
-        if nbytes is None:
-            return None
-        if nbytes == 0:
-            return None
         if self.connectionState != CONNECTED:
             self.evaluateConnecting()
-            return None
+            return
         #connected
-        retValue = None
         connOK = False
         try:
-            retValue = self.uart.read(nbytes)
+            self.uart.read(nbytes)
             connOK = True
         except:
             pass
         if not connOK or not self.ble.connected:
-            self.disconnect()
+            self.connectionState = CONNECTING
 
-        return retValue
+         

@@ -6,7 +6,7 @@ except ImportError:
 from collections import namedtuple
 from keypad import Event as KeyEvent
 
-from kmk.hid import BLEHID, USBHID, AbstractHID, HIDModes
+from kmk.blehid import BLEHID, AbstractHID, HIDModes
 from kmk.keys import KC, Key
 from kmk.modules import Module
 from kmk.scanners.keypad import MatrixScanner
@@ -287,8 +287,6 @@ class BLEKB:
     def _init_hid(self) -> None:
         if self.hid_type == HIDModes.NOOP:
             self._hid_helper = AbstractHID
-        elif self.hid_type == HIDModes.USB:
-            self._hid_helper = USBHID
         elif self.hid_type == HIDModes.BLE:
             self._hid_helper = BLEHID
         else:
