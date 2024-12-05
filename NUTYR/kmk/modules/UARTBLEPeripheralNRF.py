@@ -45,8 +45,8 @@ class UARTBLEPeripheralNRF:
             return
         #since this side won't connect to the host, 
         #the central can block
-        print("z0")
-        devicesFound =  self.ble.start_scan(ProvideServicesAdvertisement,timeout = 1)
+        print("scanning split pair...")
+        devicesFound =  self.ble.start_scan(ProvideServicesAdvertisement,timeout = 3)
         for adv in devicesFound:
             print((adv))
             print((adv.short_name))

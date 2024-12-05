@@ -21,9 +21,8 @@ class UARTBLECentralNRF:
         self.name = name
         self.ble = BLERadio()
         self.ble.name = self.name
+        
         self.uart = UARTService()
-        self.advertisement = ProvideServicesAdvertisement(self.uart)
-        self.advertisement.short_name = self.name
         self.connectionState = CONNECTING
         self.connectionFails = 0
 
@@ -50,10 +49,14 @@ class UARTBLECentralNRF:
         #since this side won't connect to the host, 
         #the central can block
         advertisingTimeUnit = 0.625
-        timeout_s = 5
+        timeout_s = 10
         if self.longDisconnected():
             timeout_s = 5
         print("Advertising...")
+        #self.uart.deinit()
+        #self.uart = UARTService()
+        self.advertisement = ProvideServicesAdvertisement(self.uart)
+        self.advertisement.short_name = self.name
         self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit*4, timeout=timeout_s)
         accumWaitingTime = 0
         
@@ -61,6 +64,7 @@ class UARTBLECentralNRF:
             time.sleep(1)
             accumWaitingTime += 1
         print("stop_advertising...")
+        
         self.ble.stop_advertising()
         if self.ble.connected:
             self.connectionState = CONNECTED
@@ -69,16 +73,16 @@ class UARTBLECentralNRF:
             return
         else:
             self.connectionFails += 1
-
         if self.longDisconnected():
             time.sleep(5)
         else:
-            time.sleep(2)
+            time.sleep(timeout_s)
+        
         
     def disconnect(self):
         self.connectionState = CONNECTING
         self.connectionFails = 0
-        self.uart  = None
+        #self.uart  = None
 
     def write(self,buf: circuitpython_typing.ReadableBuffer):
         if self.connectionState != CONNECTED:
