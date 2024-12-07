@@ -57,7 +57,7 @@ class UARTBLECentralNRF:
         #self.uart = UARTService()
         self.advertisement = ProvideServicesAdvertisement(self.uart)
         self.advertisement.short_name = self.name
-        self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit*4, timeout=timeout_s)
+        self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit*2, timeout=timeout_s)
         accumWaitingTime = 0
         
         while (not self.ble.connected) and accumWaitingTime<timeout_s:
@@ -74,9 +74,9 @@ class UARTBLECentralNRF:
         else:
             self.connectionFails += 1
         if self.longDisconnected():
-            time.sleep(5)
+            time.sleep(3)
         else:
-            time.sleep(timeout_s)
+            time.sleep(1)
         
         
     def disconnect(self):

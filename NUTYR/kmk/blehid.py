@@ -9,6 +9,7 @@ from kmk.utils import Debug, clamp
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.standard.hid import HIDService
+import time
 
 debug = Debug(__name__)
 
@@ -259,6 +260,7 @@ class BLEHID(AbstractHID):
         self.ble.name = self.ble_name
         self.hid = HIDService()
         self.hid.protocol_mode = 0  # Boot protocol
+        self.advertingStartTime = time.monotonic()
         super().__init__(**kwargs)
         self.stop_advertising()
         # Security-wise this is not right. While you're away someone turns
@@ -329,6 +331,7 @@ class BLEHID(AbstractHID):
             advertisement = ProvideServicesAdvertisement(self.hid)
             advertisement.appearance = self.BLE_APPEARANCE_HID_KEYBOARD
             self.ble.start_advertising(advertisement,timeout=12)
+            self.advertingStartTime = time.monotonic()
 
     def stop_advertising(self):
         print("stop_advertising")

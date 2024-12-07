@@ -34,30 +34,34 @@ class UARTBLEPeripheralNRF:
     def connected(self):
         return self.connectionState == CONNECTED
     
+    def linkOk(self):
+        if self.uartConn is None:
+            return False
+        return self.uartConn.connected
+    
     def evaluate(self):
         if self.connectionState == CONNECTED:
-            if not self.uartConn.connected :
+            if not self.linkOk() :
                 self.disconnect()
         else:
             self.evaluateConnecting()
 
     def evaluateConnecting(self):
         now = time.monotonic()
-        if((now-self.restingStartTime) < 3):
+        if((now-self.restingStartTime) < 1):
             return
         if self.ble.advertising:
             return#avoiding error 0011
         #since this side won't connect to the host, 
         #the central can block
         print("scanning split pair...")
-        devicesFound =  self.ble.start_scan(ProvideServicesAdvertisement,timeout = 3)
+        devicesFound =  self.ble.start_scan(ProvideServicesAdvertisement,timeout = 5, interval = 0.8)
         for adv in devicesFound:
-            print((adv))
-            print((adv.short_name))
+            print("Candidate pair: ", (adv.short_name))
             if adv.short_name != self.name:
                 continue;
             if UARTService in adv.services:
-                print("expected device found!") 
+                print("other side found!") 
                 serviceOk = False
                 try:
                     self.uartConn = self.ble.connect(adv)
@@ -113,7 +117,7 @@ class UARTBLEPeripheralNRF:
         except:
             print("x4")
             pass
-        if not self.ble.connected :
+        if not self.linkOk() :
             self.disconnect()
             print("x5")
         
@@ -136,7 +140,7 @@ class UARTBLEPeripheralNRF:
             connOK = True
         except:
             pass
-        if  not connOK  or not self.ble.connected:
+        if  not connOK  or not self.linkOk():
             self.disconnect()
 
         return retValue
