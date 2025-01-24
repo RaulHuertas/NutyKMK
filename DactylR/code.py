@@ -335,8 +335,5 @@ if __name__ == '__main__':
     
     kb.debug_enabled = True
     
-    from keyAssignations import assignKeys
-    kb.keymap = assignKeys()
-    del assignKeys
     
     kb.go()

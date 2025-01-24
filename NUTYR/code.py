@@ -171,14 +171,8 @@ def initKB():
             
             self.ledAnimTime = monotonic()
             from digitalio import DigitalInOut, Direction
-            #self.redLED = DigitalInOut(board.LED_RED)
-            #self.redLED.direction = Direction.OUTPUT
             self.redLED = pwmio.PWMOut(board.LED_RED, frequency=5000, duty_cycle=0)
 
-            #self.greenLED = DigitalInOut(board.LED_GREEN)
-            #self.greenLED.direction = Direction.OUTPUT
-            #self.blueLED = DigitalInOut(board.LED_BLUE)
-            #self.blueLED.direction = Direction.OUTPUT
             self.greenLED = pwmio.PWMOut(board.LED_GREEN, frequency=5000, duty_cycle=0)
             self.blueLED = pwmio.PWMOut(board.LED_BLUE, frequency=5000, duty_cycle=0)
 
@@ -186,7 +180,6 @@ def initKB():
 
             self.currentLayer = 0
 
-            #initialize lights
             self.updateLights(  )
             
             #initialize media
@@ -260,7 +253,7 @@ def initKB():
                     self.rgbStrip[0] = BLUE
 
             
-            dtcyc = 30000
+            dtcyc = 60000
             dtcycOff = 65535
             if self.currentLayer == 0:
                 if not bleEnabled:

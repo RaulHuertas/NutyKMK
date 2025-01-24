@@ -15,6 +15,8 @@ class UARTBLEPeripheralNRF:
     readTimeout = 0.1
     restingForScan = False
     restingStartTime = 0
+    checkLinkCounter = 0
+
     def __init__(self, name):
         
         self.name = name
@@ -38,7 +40,13 @@ class UARTBLEPeripheralNRF:
         if self.uartConn is None:
             return False
         return self.uartConn.connected
-    
+    def checkLink(self):
+        self.checkLinkCounter += 1
+        if self.checkLinkCounter > 20:
+            self.checkLinkCounter = 0
+            if not self.linkOk():
+                self.disconnect()
+
     def evaluate(self):
         if self.connectionState == CONNECTED:
             if not self.linkOk() :
@@ -100,8 +108,10 @@ class UARTBLEPeripheralNRF:
             connOK = True
         except:
             pass
-        if not connOK or not self.ble.connected:
+        
+        if not connOK:
             self.disconnect()    
+        self.checkLink()
 
     def readline(self) -> bytes | None:
         if self.connectionState != CONNECTED:
@@ -115,13 +125,10 @@ class UARTBLEPeripheralNRF:
             s = self.uart.readline()
             #print("x3")
         except:
-            print("x4")
+            #print("x4")
             pass
-        if not self.linkOk() :
-            self.disconnect()
-            print("x5")
         
-        #print("x6")
+        self.checkLink()
         return s
     
     def read(self, nbytes: int | None = None ):
@@ -140,8 +147,10 @@ class UARTBLEPeripheralNRF:
             connOK = True
         except:
             pass
-        if  not connOK  or not self.linkOk():
+        
+        if  not connOK :
             self.disconnect()
+        self.checkLink()
 
         return retValue
          

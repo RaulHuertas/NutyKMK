@@ -142,7 +142,7 @@ def initKB():
             #split_side=None,
             split_target_left=True,
             data_pin = board.D9,#RX
-            data_pin2 = board.D10,#TX
+            data_pin2 = board.IMU_PWR,#TX
             debug_enabled = False
         )
     
