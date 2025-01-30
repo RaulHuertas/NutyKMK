@@ -8,6 +8,7 @@ from time import monotonic, sleep
 from math import modf
 from kmk.keys import ConsumerKey, make_key
 from kmk.keys import KeyboardKey, make_key
+from microcontroller import nvm
 
 import pwmio
 import board
@@ -19,7 +20,8 @@ RED = (255, 0, 0)
 PURPLE = (180, 0, 255)
 WHITE = (255, 255, 255)
 YELLOW = (128, 128, 0)
-PINK = (201, 0, 0)
+
+PRIMARYCOLOR = (201,20, 20)
 
 def paintRandom(strip, nLeds):
     import random
@@ -28,6 +30,13 @@ def paintRandom(strip, nLeds):
         g = random.randint(0,255)
         b = random.randint(0,255)
         strip[pixel] = (r,g,b)
+
+def rgbClamp(value):
+    if value > 255:
+        return 255
+    if value < 0:
+        return 0
+    return value
 
 def lightShow(strip, nPixels, stageTime=0.15, nStages =10):
     import random
@@ -55,16 +64,25 @@ class NKB_USB(USBKB):
 
 class USBFeedback(Layers):
     brightnessStep : int#0 to 5
-
+    speed : int
+    
     def restoreNVM(self):
-        self.brightnessStep = self.nvm[0]
-        self.effect = self.nvm[1]
-        pass
+        self.brightnessStep = nvm[0]
+        self.effect = nvm[1]
+        self.speed = nvm[2]
+        #print("self.brightnessStep:",self.brightnessStep)
+        #print("self.effect:",self.effect)
 
     def saveNVM(self):
-        self.nvm[0] = self.brightnessStep
-        self.nvm[1] = self.effect   
-        pass
+        #print("start save")
+        #print(dir(self.nvm))
+        toStore = self.brightnessStep.to_bytes(1,'little')+self.effect.to_bytes(1,'little')+self.speed.to_bytes(1,'little')
+        nvm[0:3] =    toStore     #self.nvm.__setitem__(0,self.brightnessStep)
+        #self.nvm.__setitem__(1,self.effect)
+        #print("end save")
+
+        #self.nvm[0] = self.brightnessStep
+        #self.nvm[1] = self.effect   
 
     def _applyBrightness(self):
        self.rgbStrip.brightness = 0.5*self.brightnessStep/4.0 
@@ -72,9 +90,9 @@ class USBFeedback(Layers):
 
     def _applyEffect(self):
         if self.effect == 0:
-            self.fullyPaintAs(PINK)
+            self.fullyPaintAs(PRIMARYCOLOR)
         elif self.effect == 1:
-            paintRandom(self.rgbStrip, self.nLeds)
+            self.startRandomEffect()
         elif self.effect == 2:
             self.fullyPaintAs(BLUE)
         else:
@@ -85,15 +103,16 @@ class USBFeedback(Layers):
     def restartLights( self, *args, **kwargs):
         self.brightnessStep = 3
         self.effect = 0
+        self.speed = 30
         self.saveNVM()
         self._applyBrightness()
         self._applyEffect()
 
     def changeBrightness( self, *args, **kwargs):
-       self.brightnessStep += 1
-       self.brightnessStep%=5
-       self._applyBrightness()
-       self.saveNVM()
+        self.brightnessStep += 1
+        self.brightnessStep%=5
+        self._applyBrightness()
+        self.saveNVM()
     
     def changeEffect( self, *args, **kwargs):
         self.effect += 1
@@ -101,18 +120,47 @@ class USBFeedback(Layers):
         self._applyEffect()
         self.saveNVM()
         
+    def reduceLightsSpeed( self, *args, **kwargs):
+        self.speed -= 10
+        if self.speed<0:
+            self.speed = 0
+        self.startRandomDirectionValues()
+        self.saveNVM()
+    
+    def increaseLightsSpeed( self, *args, **kwargs):
+        self.speed += 10
+        if self.speed>100:
+            self.speed = 100
+        self.startRandomDirectionValues()
+        self.saveNVM()
+    
+    def restoreLights(self):
+        #self.fullyPaintAs(PINK)
+        self._applyEffect()
+        self.rgbStrip.show()
+        
+    
     def __init__(self, pin, nLeds = 128, brightness=0.2):
-
+        import random
+        
+        
         Layers.__init__(self)
-        import microcontroller
-        self.nvm = microcontroller.nvm
         self.restoreNVM() 
+        
+        
+        self.randomLightsBuffer = [(0,0,0)]*21
+        self.startRandomEffectValues()
+        self.randomLightsDirection = [(1,-1,1)]*21
+        self.startRandomDirectionValues()
+        
+        
         from kmk.keys import make_key,Key
         make_key(names=('BRIGHT_STEP',),constructor=Key, on_press=self.changeBrightness)
         make_key(names=('EFFECT_STEP',),constructor=Key, on_press=self.changeEffect)
+        make_key(names=('LIGHTS_LESS_SPEED',),constructor=Key, on_press=self.reduceLightsSpeed)    
+        make_key(names=('LIGHTS_MORE_SPEED',),constructor=Key, on_press=self.increaseLightsSpeed)        
         make_key(names=('LIGHTS_RESET',),constructor=Key, on_press=self.restartLights)
         
-
 
         self.br =brightness
         from neopixel import NeoPixel
@@ -133,8 +181,6 @@ class USBFeedback(Layers):
         self.blueLED = pwmio.PWMOut(board.LED_BLUE, frequency=5000, duty_cycle=0)
 
         
-        self.fullyPaintAs(PINK)
-        self.rgbStrip.show()
 
         self.currentLayer = 0
 
@@ -206,6 +252,11 @@ class USBFeedback(Layers):
     def deactivate_layer(self, keyboard, layer):
         super().deactivate_layer(keyboard, layer)
         self.on_layer_change(keyboard.active_layers[0])
+  
+    def assignColorToLayerIndicator(self, color):
+        self.rgbStrip[21] = color
+        self.rgbStrip[22] = color
+        self.rgbStrip[23] = color
 
     def updateLights(self):
         
@@ -242,34 +293,91 @@ class USBFeedback(Layers):
         
         dtcyc = 30000
         dtcycOff = 65535
+
         if self.currentLayer == 0:
-            self.rgbStrip[23] = pulsed(RED,PURPLE, pulseHighOn, self.wpmHigh)            
+            self.assignColorToLayerIndicator( pulsed(RED,PURPLE, pulseHighOn, self.wpmHigh))
             self.redLED.duty_cycle = dtcyc
             self.greenLED.duty_cycle = dtcycOff
             self.blueLED.duty_cycle = dtcycOff
         elif self.currentLayer == 1:
-            self.rgbStrip[23] = pulsed(GREEN,PURPLE,  pulseHighOn, self.wpmHigh)            
+            self.assignColorToLayerIndicator( pulsed(GREEN,PURPLE, pulseHighOn, self.wpmHigh))
             self.redLED.duty_cycle = dtcycOff
             self.greenLED.duty_cycle = dtcyc
             self.blueLED.duty_cycle = dtcycOff
         elif self.currentLayer == 2:
-            self.rgbStrip[23] = pulsed(BLUE,PURPLE,  pulseHighOn, self.wpmHigh)            
+            self.assignColorToLayerIndicator( pulsed(BLUE,PURPLE, pulseHighOn, self.wpmHigh)) 
             self.redLED.duty_cycle = dtcycOff
             self.greenLED.duty_cycle = dtcycOff
             self.blueLED.duty_cycle = dtcyc
         elif self.currentLayer == 3:
-            self.rgbStrip[23] = pulsed(YELLOW,PURPLE,  pulseHighOn, self.wpmHigh)            
+            self.assignColorToLayerIndicator( pulsed(YELLOW,PURPLE, pulseHighOn, self.wpmHigh))
             self.redLED.duty_cycle = dtcyc
             self.greenLED.duty_cycle = dtcyc
             self.blueLED.duty_cycle = dtcycOff
         elif self.currentLayer == 4:
-            self.rgbStrip[23] = pulsed(ORANGE,PURPLE,  pulseHighOn, self.wpmHigh)            
+            self.rgbStrip[21] = pulsed(ORANGE,PURPLE,  pulseHighOn, self.wpmHigh)            
             self.redLED.duty_cycle = dtcyc
             self.greenLED.duty_cycle = dtcycOff
             self.blueLED.duty_cycle = dtcyc
+
+        
+        #animate random effect
+        if (self.effect == 1):
+            for p in range(21):
+                pixel = self.randomLightsBuffer[p]
+                stepRed = self.randomLightsDirection[p][0]
+                stepGreen = self.randomLightsDirection[p][1]
+                stepBlue = self.randomLightsDirection[p][2]
+                newRed      = rgbClamp((pixel[0]+stepRed))
+                if(newRed>=255 or newRed<=0):
+                    stepRed = -stepRed
+                newGreen    = rgbClamp((pixel[1]+stepGreen))
+                if(newGreen>=255 or newGreen<=0):
+                    stepGreen = -stepGreen
+                newBlue     = rgbClamp((pixel[2]+stepBlue))
+                if(newBlue>=255 or newBlue<=0):
+                    stepBlue = -stepBlue
+                
+                self.randomLightsBuffer[p] = (newRed,newGreen,newBlue)
+                self.randomLightsDirection[p] = (stepRed,stepGreen,stepBlue)
+
+            self.randomEffectBufferToLights() 
         
         self.rgbStrip.show()
         self.ledAnimTime = nowT
+
+    def randomEffectBufferToLights(self):
+
+        for i in range(21):
+            self.rgbStrip[i] = self.randomLightsBuffer[i]
+            
+    def startRandomDirectionValues(self):
+        import random
+        speed = self.speed
+        
+        print("Assign random colors!!")
+        for pixel in range(21):
+            r = -1 if random.randint(0,1)==0 else 1
+            g = -1 if random.randint(0,1)==0 else 1
+            b = -1 if random.randint(0,1)==0 else 1
+            self.randomLightsDirection[pixel] = (r*speed,g*speed,b*speed)
+                     
+    def startRandomEffectValues(self):
+        import random
+        
+        print("Assign random colors!!")
+        for pixel in range(21):
+            r = random.randint(0,255)
+            g = random.randint(0,255)
+            b = random.randint(0,255)
+            self.randomLightsBuffer[pixel] = (r,g,b)
+            
+            
+            
+            
+    def startRandomEffect(self):
+        self.startRandomEffectValues()
+        self.randomEffectBufferToLights()
 
     def before_matrix_scan(self, sandbox):
         super().before_matrix_scan(sandbox)

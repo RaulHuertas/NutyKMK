@@ -64,18 +64,20 @@ class NKB_USB(USBKB):
 
 class USBFeedback(Layers):
     brightnessStep : int#0 to 5
-
+    speed : int
+    
     def restoreNVM(self):
         self.brightnessStep = nvm[0]
         self.effect = nvm[1]
+        self.speed = nvm[2]
         #print("self.brightnessStep:",self.brightnessStep)
         #print("self.effect:",self.effect)
 
     def saveNVM(self):
         #print("start save")
         #print(dir(self.nvm))
-        toStore = self.brightnessStep.to_bytes(1,'little')+ self.effect.to_bytes(1,'little')
-        nvm[0:2] =    toStore     #self.nvm.__setitem__(0,self.brightnessStep)
+        toStore = self.brightnessStep.to_bytes(1,'little')+self.effect.to_bytes(1,'little')+self.speed.to_bytes(1,'little')
+        nvm[0:3] =    toStore     #self.nvm.__setitem__(0,self.brightnessStep)
         #self.nvm.__setitem__(1,self.effect)
         #print("end save")
 
@@ -101,20 +103,35 @@ class USBFeedback(Layers):
     def restartLights( self, *args, **kwargs):
         self.brightnessStep = 3
         self.effect = 0
+        self.speed = 30
         self.saveNVM()
         self._applyBrightness()
         self._applyEffect()
 
     def changeBrightness( self, *args, **kwargs):
-       self.brightnessStep += 1
-       self.brightnessStep%=5
-       self._applyBrightness()
-       self.saveNVM()
+        self.brightnessStep += 1
+        self.brightnessStep%=5
+        self._applyBrightness()
+        self.saveNVM()
     
     def changeEffect( self, *args, **kwargs):
         self.effect += 1
         self.effect%=4
         self._applyEffect()
+        self.saveNVM()
+        
+    def reduceLightsSpeed( self, *args, **kwargs):
+        self.speed -= 10
+        if self.speed<0:
+            self.speed = 0
+        self.startRandomDirectionValues()
+        self.saveNVM()
+    
+    def increaseLightsSpeed( self, *args, **kwargs):
+        self.speed += 10
+        if self.speed>100:
+            self.speed = 100
+        self.startRandomDirectionValues()
         self.saveNVM()
     
     def restoreLights(self):
@@ -128,16 +145,20 @@ class USBFeedback(Layers):
         
         
         Layers.__init__(self)
+        self.restoreNVM() 
+        
         
         self.randomLightsBuffer = [(0,0,0)]*21
         self.startRandomEffectValues()
         self.randomLightsDirection = [(1,-1,1)]*21
         self.startRandomDirectionValues()
         
-        self.restoreNVM() 
+        
         from kmk.keys import make_key,Key
         make_key(names=('BRIGHT_STEP',),constructor=Key, on_press=self.changeBrightness)
         make_key(names=('EFFECT_STEP',),constructor=Key, on_press=self.changeEffect)
+        make_key(names=('LIGHTS_LESS_SPEED',),constructor=Key, on_press=self.reduceLightsSpeed)    
+        make_key(names=('LIGHTS_MORE_SPEED',),constructor=Key, on_press=self.increaseLightsSpeed)        
         make_key(names=('LIGHTS_RESET',),constructor=Key, on_press=self.restartLights)
         
 
@@ -332,7 +353,7 @@ class USBFeedback(Layers):
             
     def startRandomDirectionValues(self):
         import random
-        speed = 30
+        speed = self.speed
         
         print("Assign random colors!!")
         for pixel in range(21):
