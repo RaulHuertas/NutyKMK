@@ -46,7 +46,7 @@ def lightShow(strip, nPixels, stageTime=0.15, nStages =10):
         sleep(stageTime)
     
 class NKB_USB(USBKB):
-    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.COL2ROW):   
+    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.ROW2COL):   
         # create and register the scanner
         self.matrix = MatrixScanner(
             # required arguments:

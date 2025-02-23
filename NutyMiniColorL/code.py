@@ -76,25 +76,10 @@ def initKBUSB():
 
 def initKBBLE():
     
-    from kmk.kbble import KMKBLEKeyboard
-    from kmk.scanners.keypad import MatrixScanner
-    from kmk.scanners import DiodeOrientation
-    class MyKeyboard(KMKBLEKeyboard):
-        def __init__(self, col_pins, row_pins):   
-            # create and register the scanner
-            self.matrix = MatrixScanner(
-                # required arguments:
-                column_pins=col_pins,
-                row_pins=row_pins,
-                # optional arguments with defaults:
-                columns_to_anodes=DiodeOrientation.COL2ROW,
-                interval=0.020,  # Debounce time in floating point seconds
-                max_events=4
-            )
-    
-    keyboard = MyKeyboard(col_pins, row_pins)
-
+    from nkble import NKB_BLE, BLEFeedback
     from kmk.modules.splituart import SplitUART, SplitSide
+    keyboard = NKB_BLE(col_pins, row_pins)
+
     split = SplitUART(
             split_side=SplitSide.LEFT,
             split_target_left=True,
@@ -106,13 +91,14 @@ def initKBBLE():
     power = Power()
     from kmk.modules.holdtap import HoldTap
     from kmk.modules.mouse_keys import MouseKeys
-    from kmk.modules.layers import Layers
+    from kmk.modules.midi import MidiKeys
     keyboard.modules = [
         split,
         power,
         HoldTap(),
         MouseKeys(),
-        Layers()
+        BLEFeedback(),
+        MidiKeys()
     ]         
     return keyboard            
 

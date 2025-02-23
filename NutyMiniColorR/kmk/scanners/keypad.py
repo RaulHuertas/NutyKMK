@@ -1,6 +1,6 @@
 import keypad
 
-from kmk.scanners import Scanner
+from kmk.scanners import DiodeOrientation, Scanner
 
 
 class KeypadScanner(Scanner):
@@ -36,8 +36,22 @@ class MatrixScanner(KeypadScanner):
     :param direction: The diode orientation of the matrix.
     '''
 
-    def __init__(self, *args, **kwargs):
-        self.keypad = keypad.KeyMatrix(*args, **kwargs)
+    def __init__(
+        self,
+        row_pins,
+        column_pins,
+        *,
+        columns_to_anodes=DiodeOrientation.COL2ROW,
+        interval=0.02,
+        max_events=64,
+    ):
+        self.keypad = keypad.KeyMatrix(
+            row_pins,
+            column_pins,
+            columns_to_anodes=(columns_to_anodes == DiodeOrientation.COL2ROW),
+            interval=interval,
+            max_events=max_events,
+        )
         super().__init__()
 
 
@@ -48,12 +62,46 @@ class KeysScanner(KeypadScanner):
     :param pins: An array of arrays of CircuitPython Pin objects, such that pins[r][c] is the pin for row r, column c.
     '''
 
-    def __init__(self, *args, **kwargs):
-        self.keypad = keypad.Keys(*args, **kwargs)
+    def __init__(
+        self,
+        pins,
+        *,
+        value_when_pressed=False,
+        pull=True,
+        interval=0.02,
+        max_events=64,
+    ):
+        self.keypad = keypad.Keys(
+            pins,
+            value_when_pressed=value_when_pressed,
+            pull=pull,
+            interval=interval,
+            max_events=max_events,
+        )
         super().__init__()
 
 
 class ShiftRegisterKeys(KeypadScanner):
-    def __init__(self, *args, **kwargs):
-        self.keypad = keypad.ShiftRegisterKeys(*args, **kwargs)
+    def __init__(
+        self,
+        *,
+        clock,
+        data,
+        latch,
+        value_to_latch=True,
+        key_count,
+        value_when_pressed=False,
+        interval=0.02,
+        max_events=64,
+    ):
+        self.keypad = keypad.ShiftRegisterKeys(
+            clock=clock,
+            data=data,
+            latch=latch,
+            value_to_latch=value_to_latch,
+            key_count=key_count,
+            value_when_pressed=value_when_pressed,
+            interval=interval,
+            max_events=max_events,
+        )
         super().__init__()
