@@ -5,9 +5,7 @@ from micropython import const
 from supervisor import runtime, ticks_ms
 
 from keypad import Event as KeyEvent
-from storage import getmount
 
-from kmk.hid import HIDModes
 from kmk.kmktime import check_deadline
 from kmk.modules import Module
 
@@ -21,7 +19,7 @@ class SplitUART(Module):
 
     def __init__(
         self,
-        split_flip=True,
+        split_flip=False,
         split_side=None,
         split_target_left=True,
         uart_interval=20,
@@ -47,8 +45,7 @@ class SplitUART(Module):
 
     def during_bootup(self, keyboard):
         # Set up name for target side detection and BLE advertisment
-        name = str(getmount('/').label)
-
+       
         # if split side was given, find target from split_side.
         if self.split_side == SplitSide.LEFT:
             self._is_target = bool(self.split_target_left)

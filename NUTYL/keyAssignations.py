@@ -1,7 +1,7 @@
-
-
+from kmk.keys import KC
+from kmk.modules.layers import Layers
 def assignKeys ():
-    from kmk.keys import KC
+    
     
     kc = KC
     NTIL = kc.SCOLON
@@ -145,8 +145,8 @@ def assignKeys ():
     layer2Asignations[1] =  kc.INSERT
     layer2Asignations[2] =  kc.HOME
     layer2Asignations[3] =  kc.PGUP
-    layer2Asignations[4] =  kc.BLE_DISCONNECT
-    layer2Asignations[5] =  kc.BLE_REFRESH
+    layer2Asignations[4] =  noAsg
+    layer2Asignations[5] =  noAsg
 
     layer2Asignations[6] =  kc.MB_MMB
     layer2Asignations[7] =  kc.MB_LMB
@@ -170,12 +170,12 @@ def assignKeys ():
     layer2Asignations[23] =   noAsg
     
     #ROW2
-    layer2Asignations[24] =  kc.LCTRL
-    layer2Asignations[25] =  noAsg
-    layer2Asignations[26] =  noAsg
-    layer2Asignations[27] =  noAsg
-    layer2Asignations[28] = noAsg
-    layer2Asignations[29] =  noAsg
+    layer2Asignations[24] = kc.LCTRL
+    layer2Asignations[25] = kc.BRIGHT_STEP
+    layer2Asignations[26] = kc.EFFECT_STEP
+    layer2Asignations[27] = kc.LIGHTS_LESS_SPEED 
+    layer2Asignations[28] = kc.LIGHTS_MORE_SPEED
+    layer2Asignations[29] = kc.LIGHTS_RESET
 
     layer2Asignations[30] =  kc.F3
     layer2Asignations[31] =  kc.F4
