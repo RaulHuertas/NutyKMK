@@ -46,7 +46,7 @@ def lightShow(strip, nPixels, stageTime=0.15, nStages =10):
         sleep(stageTime)
     
 class NKB_USB(USBKB):
-    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.ROW2COL):   
+    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.COL2ROW):   
         # create and register the scanner
         self.matrix = MatrixScanner(
             # required arguments:
@@ -148,9 +148,9 @@ class USBFeedback(Layers):
         self.restoreNVM() 
         
         
-        self.randomLightsBuffer = [(0,0,0)]*21
+        self.randomLightsBuffer = [(0,0,0)]*nLeds
         self.startRandomEffectValues()
-        self.randomLightsDirection = [(1,-1,1)]*21
+        self.randomLightsDirection = [(1,-1,1)]*nLeds
         self.startRandomDirectionValues()
         
         
@@ -252,7 +252,7 @@ class USBFeedback(Layers):
     def deactivate_layer(self, keyboard, layer):
         super().deactivate_layer(keyboard, layer)
         self.on_layer_change(keyboard.active_layers[0])
-  
+        
     def assignColorToLayerIndicator(self, color):
         self.rgbStrip[21] = color
         self.rgbStrip[22] = color
@@ -276,7 +276,6 @@ class USBFeedback(Layers):
             else:
                 self.wpmHigh = False
             self.resetWPM()
-
         #######################
         ######LEDS status######
         #######################
@@ -293,7 +292,6 @@ class USBFeedback(Layers):
         
         dtcyc = 30000
         dtcycOff = 65535
-
         if self.currentLayer == 0:
             self.assignColorToLayerIndicator( pulsed(RED,PURPLE, pulseHighOn, self.wpmHigh))
             self.redLED.duty_cycle = dtcyc
@@ -315,7 +313,7 @@ class USBFeedback(Layers):
             self.greenLED.duty_cycle = dtcyc
             self.blueLED.duty_cycle = dtcycOff
         elif self.currentLayer == 4:
-            self.rgbStrip[21] = pulsed(ORANGE,PURPLE,  pulseHighOn, self.wpmHigh)            
+            self.assignColorToLayerIndicator( pulsed(WHITE,PURPLE, pulseHighOn, self.wpmHigh))
             self.redLED.duty_cycle = dtcyc
             self.greenLED.duty_cycle = dtcycOff
             self.blueLED.duty_cycle = dtcyc
@@ -361,7 +359,7 @@ class USBFeedback(Layers):
             g = -1 if random.randint(0,1)==0 else 1
             b = -1 if random.randint(0,1)==0 else 1
             self.randomLightsDirection[pixel] = (r*speed,g*speed,b*speed)
-                     
+            
     def startRandomEffectValues(self):
         import random
         
@@ -371,9 +369,6 @@ class USBFeedback(Layers):
             g = random.randint(0,255)
             b = random.randint(0,255)
             self.randomLightsBuffer[pixel] = (r,g,b)
-            
-            
-            
             
     def startRandomEffect(self):
         self.startRandomEffectValues()

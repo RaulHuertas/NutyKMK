@@ -43,7 +43,7 @@ def isItOn(cols, rows, keyIndex):
 row_pins = (board.D4, board.D3, board.D2, board.D1)
 col_pins = ( board.D5, board.D6,board.D7, board.D8,board.D9,board.D10,)
 bleSelectButton = 18
-testing = False
+testing = True
 
 def initKBUSB():
     from nkbusb import NKB_USB, USBFeedback
@@ -59,16 +59,6 @@ def initKBUSB():
 
     keyboard = NKB_USB(col_pins, row_pins)
 
-    keyboard.coord_mapping = [
-        0,  1,  2,  3,  4,  5, 
-        24, 25, 26, 27, 28, 29,                          
-        6,  7,  8,  9, 10, 11,
-        30, 31, 32, 33, 34, 35,
-        12, 13, 14, 15, 16, 17,
-        36, 37, 38, 39, 40, 41,
-        18, 19, 20, 21, 22, 23,
-        42, 43, 44, 45, 46, 47,
-    ]
     
     fb = USBFeedback(board.D0, 24, 0.1)
     
@@ -76,22 +66,20 @@ def initKBUSB():
     
     from kmk.modules.mouse_keys  import MouseKeys
     holdtap = HoldTap()
-    #holdtap.tap_time = 600
-    from kmk.modules.layers import Layers
     keyboard.modules = [
         split, 
         fb,
         holdtap,
-        MouseKeys(),
-        Layers()
+        MouseKeys()
     ]
 
     return keyboard
 
 def initKBBLE():
-    from nkble import NKB_BLE, BLEFeedback
+    from nkbusb import NKB_USB
+    from nkble import BLEFeedback
     from kmk.modules.splituart import SplitUART, SplitSide
-    keyboard = NKB_BLE(col_pins, row_pins)
+    keyboard = NKB_USB(col_pins, row_pins)
     split = SplitUART(
         split_side=SplitSide.RIGHT,
         split_target_left=True,
@@ -101,17 +89,16 @@ def initKBBLE():
     )   
     from kmk.modules.power import Power
     power = Power()
-    from kmk.modules.holdtap import HoldTap
-    from kmk.modules.mouse_keys import MouseKeys
+    #from kmk.modules.holdtap import HoldTap
+    #from kmk.modules.mouse_keys import MouseKeys
     keyboard.modules = [
         split,
         power,
-        HoldTap(),
-        MouseKeys(),
+        #HoldTap(),
+        #MouseKeys(),
         BLEFeedback()
     ]         
     return keyboard            
-
 
 def assignKeymap(kb):
     from keyAssignations import assignKeys

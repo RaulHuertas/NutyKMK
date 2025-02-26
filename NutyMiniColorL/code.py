@@ -2,7 +2,7 @@
 print("Starting on LEFT")
 
 import board
-testing  = False
+testing  = True
 
 
 def isItOn(cols, rows, keyIndex):
@@ -61,13 +61,13 @@ def initKBUSB():
         )
     from kmk.modules.holdtap import HoldTap
     from kmk.modules.mouse_keys import MouseKeys
-    from kmk.modules.layers import Layers
+    #from kmk.modules.layers import Layers
     keyboard.modules = [
         split, 
         USBFeedback(board.D0, 24,brightness=0.1),
         HoldTap(),
         MouseKeys(),
-        Layers()
+        #Layers(i)
     ]
 
     
