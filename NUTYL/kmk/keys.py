@@ -134,7 +134,8 @@ def maybe_make_mod_key(candidate: str) -> Optional[Key]:
 
     for code, names in mods:
         if candidate in names:
-            return make_key(names=names, constructor=ModifierKey, code=code)
+           # return make_key(names=names, constructor=ModifierKey, code=code)
+           pass
 
 
 def maybe_make_more_ascii(candidate: str) -> Optional[Key]:
@@ -159,7 +160,8 @@ def maybe_make_more_ascii(candidate: str) -> Optional[Key]:
 
     for code, names in codes:
         if candidate in names:
-            return make_key(names=names, constructor=KeyboardKey, code=code)
+            #return make_key(names=names, constructor=KeyboardKey, code=code)
+            pass
 
 
 def maybe_make_fn_key(candidate: str) -> Optional[Key]:
@@ -192,7 +194,8 @@ def maybe_make_fn_key(candidate: str) -> Optional[Key]:
 
     for code, names in codes:
         if candidate in names:
-            return make_key(names=names, constructor=KeyboardKey, code=code)
+            #return make_key(names=names, constructor=KeyboardKey, code=code)
+            pass
 
 
 def maybe_make_navlock_key(candidate: str) -> Optional[Key]:
@@ -206,17 +209,17 @@ def maybe_make_navlock_key(candidate: str) -> Optional[Key]:
         # FIXME: Investigate whether this key actually works, and
         #        uncomment when/if it does.
         # (132, ('LOCKING_SCROLL', 'LSCRL')),
-        (72, ('PAUSE', 'PAUS', 'BRK')),
-        (73, ('INSERT', 'INS')),
-        (74, ('HOME',)),
-        (75, ('PGUP',)),
-        (76, ('DELETE', 'DEL')),
-        (77, ('END',)),
-        (78, ('PGDOWN', 'PGDN')),
-        (79, ('RIGHT', 'RGHT')),
-        (80, ('LEFT',)),
-        (81, ('DOWN',)),
-        (82, ('UP',)),
+        #(72, ('PAUSE', 'PAUS', 'BRK')),
+        #(73, ('INSERT', 'INS')),
+        #(74, ('HOME',)),
+        #(75, ('PGUP',)),
+        #(76, ('DELETE', 'DEL')),
+        #(77, ('END',)),
+        #(78, ('PGDOWN', 'PGDN')),
+        #(79, ('RIGHT', 'RGHT')),
+        #(80, ('LEFT',)),
+        #(81, ('DOWN',)),
+        #(82, ('UP',)),
     )
 
     for code, names in codes:
@@ -250,10 +253,12 @@ def maybe_make_numpad_key(candidate: str) -> Optional[Key]:
 
     for code, names in codes:
         if candidate in names:
-            return make_key(names=names, constructor=KeyboardKey, code=code)
+            #return make_key(names=names, constructor=KeyboardKey, code=code)
+            pass
 
 
 def maybe_make_shifted_key(candidate: str) -> Optional[Key]:
+    return
     codes = (
         (30, ('EXCLAIM', 'EXLM', '!')),
         (31, ('AT', '@')),
@@ -286,6 +291,7 @@ def maybe_make_shifted_key(candidate: str) -> Optional[Key]:
 
 
 def maybe_make_international_key(candidate: str) -> Optional[Key]:
+    return
     codes = (
         (50, ('NONUS_HASH', 'NUHS')),
         (100, ('NONUS_BSLASH', 'NUBS')),
