@@ -7,7 +7,7 @@ from kmk.extensions import Extension
 from kmk.keys import make_key
 from kmk.kmktime import PeriodicTimer, ticks_diff
 from kmk.utils import clamp
-
+import terminalio
 class DisplayBase:
     def __init__(self):
         raise NotImplementedError
@@ -49,6 +49,7 @@ class Display(Extension):
         entries=[],
         width=128,
         height=32,
+        rotation=0,
         brightness=0.8,
         brightness_step=0.1,
         dim_time=20,
@@ -60,8 +61,9 @@ class Display(Extension):
     ):
         self.display = display
         self.entries = entries
-        self.width = width
-        self.height = height
+        self.width = display.width
+        self.height = display.height
+        self.rotation = display.rotation
         self.prev_layer = None
         self.brightness = brightness
         self.brightness_step = brightness_step
@@ -75,30 +77,29 @@ class Display(Extension):
         self.powersave_off_time_ms = powersave_off_time * 1000
         self.dim_period = PeriodicTimer(50)
         self.split_side = None
+        #layer1 = bitmap = displayio.OnDiskBitmap("/layer1.bmp")
+        #self.layer1 = displayio.TileGrid(layer1, pixel_shader=layer1.pixel_shader,x=0,y=0)
+        
+        
+        #layer2 = bitmap = displayio.OnDiskBitmap("/layer2.bmp")
+        #self.layer2 = displayio.TileGrid(layer2, pixel_shader=layer2.pixel_shader,x=0,y=0)
 
-        make_key(names=('DIS_BRI',), on_press=self.display_brightness_increase)
-        make_key(names=('DIS_BRD',), on_press=self.display_brightness_decrease)
+        #make_key(names=('DIS_BRI',), on_press=self.display_brightness_increase)
+        #make_key(names=('DIS_BRD',), on_press=self.display_brightness_decrease)
 
     def render(self, layer):
         splash = displayio.Group()
 
-        for entry in self.entries:
-            if entry.layer != layer and entry.layer is not None:
-                continue
             #if isinstance(entry, TextEntry):
-               # splash.append(
-               #     label.Label(
-               #         terminalio.FONT,
-               #         text=entry.text,
-               #         color=entry.color,
-               #         background_color=entry.background_color,
-               #         anchor_point=entry.anchor_point,
-               #         anchored_position=entry.anchored_position,
-               #         label_direction=entry.direction,
-               #         line_spacing=entry.line_spacing,
-               #         padding_left=1,
-               #     )
-               # )
+        splash.append(
+            label.Label(
+                terminalio.FONT,
+                text="Hello!",
+                color=0xFFFFFF,
+                x=0,
+                y=4,                
+            )
+        )
             #   pass
             #elif isinstance(entry, ImageEntry):
                 #splash.append(
@@ -119,13 +120,14 @@ class Display(Extension):
         return
 
     def during_bootup(self, keyboard):
-        self.display.during_bootup(self.width, self.height,0)
+        self.display.during_bootup(self.width, self.height,self.rotation)
         self.display.brightness = self.brightness
 
     def before_matrix_scan(self, sandbox):
         if self.dim_period.tick():
             self.dim()
         if sandbox.active_layers[0] != self.prev_layer:
+            print("layer change detected")
             self.prev_layer = sandbox.active_layers[0]
             self.render(sandbox.active_layers[0])
 

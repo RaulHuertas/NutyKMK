@@ -70,23 +70,24 @@ def initKB():
         import busio
         i2c_bus = busio.I2C(board.D9, board.D10)
         driver = SSD1306(
-            # Mandatory:
             i2c=i2c_bus,
-            # Optional:
-            device_address=0x3C,
+            width=128,
+            height=32,
+            rotation=180
         )
-
+        #driver.rotation = 90
         display = Display(
             # Mandatory:
             display=driver,
             # Optional:
-            width=128, # screen size
-            height=32, # screen size
+            #width=128, # screen size
+            #height=32, # screen size
+            #rotation=-180,
             brightness=0.5, # initial screen brightness level
             brightness_step=0.1, # used for brightness increase/decrease keycodes
             dim_time=0.5, # time in seconds to reduce screen brightness
             dim_target=0.05, # set level for brightness decrease
-            off_time=10, # time in seconds to turn off screen
+            off_time=5, # time in seconds to turn off screen
             powersave_dim_time=10, # time in seconds to reduce screen brightness
             powersave_dim_target=0.1, # set level for brightness decrease
             powersave_off_time=30, # time in seconds to turn off screen

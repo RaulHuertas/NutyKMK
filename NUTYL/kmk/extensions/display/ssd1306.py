@@ -10,12 +10,15 @@ displayio.release_displays()
 
 
 class SSD1306(DisplayBase):
-    def __init__(self, i2c=None, sda=None, scl=None, device_address=0x3C):
+    def __init__(self, i2c=None, width=128,height=32,rotation=0,sda=None, scl=None, device_address=0x3C):
         self.device_address = device_address
         # i2c initialization
         self.i2c = i2c
         if self.i2c is None:
             self.i2c = busio.I2C(scl, sda)
+        self.width = width
+        self.height = height
+        self.rotation = rotation
 
     def during_bootup(self, width, height, rotation):
         self.display = adafruit_displayio_ssd1306.SSD1306(
@@ -24,7 +27,6 @@ class SSD1306(DisplayBase):
             height=height,
             rotation=rotation,
         )
-
         return self.display
 
     def deinit(self):
