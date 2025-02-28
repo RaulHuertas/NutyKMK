@@ -63,7 +63,9 @@ class UARTBLEPeripheralNRF:
         #since this side won't connect to the host, 
         #the central can block
         print("scanning split pair...")
-        devicesFound =  self.ble.start_scan(ProvideServicesAdvertisement,timeout = 5, interval = 0.8)
+        devicesFound =  self.ble.start_scan(ProvideServicesAdvertisement,timeout = 3, interval = 0.1)
+
+
         for adv in devicesFound:
             print("Candidate pair: ", (adv.short_name))
             if adv.short_name != self.name:
@@ -86,8 +88,8 @@ class UARTBLEPeripheralNRF:
         if not self.connected():
             self.connectionFails += 1
         self.restingStartTime = time.monotonic()
-        #time.sleep(3)
         self.ble.stop_scan()
+        time.sleep(3)
 
     def disconnect(self):
         self.connectionState = CONNECTING
@@ -105,7 +107,7 @@ class UARTBLEPeripheralNRF:
         connOK = False
         try:
             self.uart.write(buf)
-            print("writing to the other side: ", buf)
+            #print("writing to the other side: ", buf)
             connOK = True
         except:
             pass

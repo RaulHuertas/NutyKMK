@@ -10,7 +10,7 @@ import time
 
 
 
-testing  =True
+testing  = True
 
 def isItOn(cols, rows, keyIndex):
     nCol = len(cols)

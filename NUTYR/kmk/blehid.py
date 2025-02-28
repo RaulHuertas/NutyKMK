@@ -9,6 +9,7 @@ from kmk.utils import Debug, clamp
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.standard.hid import HIDService
+from kmk.scheduler import create_task
 import time
 
 debug = Debug(__name__)
@@ -268,8 +269,9 @@ class BLEHID(AbstractHID):
         # listen to keystrokes.
         # On the other hand we don't have LESC so it's like shouting your
         # keystrokes in the air
-        if not self.ble.connected or not self.hid.devices:
-            self.start_advertising()
+        #if not self.ble.connected or not self.hid.devices:
+        #    self.start_advertising()
+        self.pairing = create_task(self.start_advertising,period_ms=5000)
 
     @property
     def devices(self):
@@ -325,14 +327,15 @@ class BLEHID(AbstractHID):
         _bleio.adapter.erase_bonding()
 
     def start_advertising(self):
-        print("start_advertising 1")
-        if not self.ble.advertising:
-            print("start_advertising 2")
+        print("hid start_advertising 1")
+        if not self.ble.advertising and not self.hid.devices:
+            print("hid start_advertising 2")
             advertisement = ProvideServicesAdvertisement(self.hid)
             advertisement.appearance = self.BLE_APPEARANCE_HID_KEYBOARD
-            self.ble.start_advertising(advertisement,timeout=12)
+            self.ble.start_advertising(advertisement,timeout=3)
             self.advertingStartTime = time.monotonic()
+            self.stop_advertising()
 
     def stop_advertising(self):
-        print("stop_advertising")
+        print("hid stop_advertising")
         self.ble.stop_advertising()
