@@ -57,6 +57,7 @@ class UARTBLECentralNRF:
     def in_waiting(self):
         if self.uart is  None:
             return 0
+        #print("iuart: in_waiting:", self.uart.in_waiting)
         return self.uart.in_waiting
     
     def evaluateConnecting(self):
@@ -67,7 +68,7 @@ class UARTBLECentralNRF:
         if self.longDisconnected():
             timeout_s = 1
         if  self.ble.advertising:
-            print("already advertising")
+            #print("already advertising")
             return
         
         
@@ -132,6 +133,7 @@ class UARTBLECentralNRF:
         return self.evaluate()
     
     def read(self, nbytes: int | None = None ):
+        print("reading frm other side")
         if nbytes is None:
             return None
         if nbytes == 0:

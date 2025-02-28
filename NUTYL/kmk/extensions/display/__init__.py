@@ -4,7 +4,6 @@ import displayio
 from adafruit_display_text import label
 
 from kmk.extensions import Extension
-from kmk.keys import make_key
 from kmk.kmktime import PeriodicTimer, ticks_diff
 from kmk.utils import clamp
 import terminalio
@@ -47,9 +46,6 @@ class Display(Extension):
         self,
         display=None,
         entries=[],
-        width=128,
-        height=32,
-        rotation=0,
         brightness=0.8,
         brightness_step=0.1,
         dim_time=20,
@@ -68,15 +64,16 @@ class Display(Extension):
         self.brightness = brightness
         self.brightness_step = brightness_step
         self.timer_start = ticks_ms()
-        self.powersave = False
         self.dim_time_ms = dim_time * 1000
         self.dim_target = dim_target
         self.off_time_ms = off_time * 1000
         self.powersavedim_time_ms = powersave_dim_time * 1000
         self.powersave_dim_target = powersave_dim_target
         self.powersave_off_time_ms = powersave_off_time * 1000
+        self.powersave = False
         self.dim_period = PeriodicTimer(50)
         self.split_side = None
+        self.showBoot = True
         #layer1 = bitmap = displayio.OnDiskBitmap("/layer1.bmp")
         #self.layer1 = displayio.TileGrid(layer1, pixel_shader=layer1.pixel_shader,x=0,y=0)
         
@@ -88,13 +85,29 @@ class Display(Extension):
         #make_key(names=('DIS_BRD',), on_press=self.display_brightness_decrease)
 
     def render(self, layer):
+        if self.showBoot:
+            self.showBoot = False
+            splash = displayio.Group()
+            splash.append(
+                label.Label(
+                    terminalio.FONT,
+                    text="Activando escudos AT",
+                    color=0xFFFFFF,
+                    x=0,
+                    y=4,
+                )
+            )
+            self.display.root_group = splash
+            import time
+            time.sleep(1)
+            return
         splash = displayio.Group()
 
             #if isinstance(entry, TextEntry):
         splash.append(
             label.Label(
                 terminalio.FONT,
-                text="Hello!",
+                text="Capa: "+str(layer+1),
                 color=0xFFFFFF,
                 x=0,
                 y=4,                

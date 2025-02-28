@@ -27,6 +27,7 @@ class SSD1306(DisplayBase):
             height=height,
             rotation=rotation,
         )
+        self.display.root_group = None
         return self.display
 
     def deinit(self):

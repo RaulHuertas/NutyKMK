@@ -105,6 +105,7 @@ class UARTBLEPeripheralNRF:
         connOK = False
         try:
             self.uart.write(buf)
+            print("writing to the other side: ", buf)
             connOK = True
         except:
             pass
@@ -116,7 +117,7 @@ class UARTBLEPeripheralNRF:
     def readline(self) -> bytes | None:
         if self.connectionState != CONNECTED:
             self.evaluateConnecting()
-            print("x1")
+            #print("x1")
             return None
         #connected
         #print("x2")
