@@ -62,8 +62,8 @@ class UARTBLECentralNRF:
     def evaluateConnecting(self):
         #since this side won't connect to the host, 
         #the central can block
-        advertisingTimeUnit = 1.25
-        timeout_s = 2
+        advertisingTimeUnit =1.25
+        timeout_s = 3
         if self.longDisconnected():
             timeout_s = 1
         if  self.ble.advertising:
@@ -76,7 +76,7 @@ class UARTBLECentralNRF:
         from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
         self.advertisement = ProvideServicesAdvertisement(self.uart)
         self.advertisement.short_name = self.name
-        self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit, timeout=timeout_s)
+        self.ble.start_advertising(self.advertisement, interval=1*advertisingTimeUnit, timeout=timeout_s)
         accumWaitingTime = 0
         
         while (not self.ble.connected) and accumWaitingTime<timeout_s:
