@@ -1,10 +1,7 @@
-from adafruit_ble import BLERadio
-from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-from adafruit_ble.services.nordic import UARTService
 from micropython import const
 import time;
-CONNECTING = 0
-CONNECTED = 1
+CONNECTING = const(0)
+CONNECTED = const(1)
 
 class UARTBLECentralNRF:
     ble = None
@@ -18,6 +15,8 @@ class UARTBLECentralNRF:
     readTimeout = 0.1
 
     def __init__(self, name):
+        from adafruit_ble import BLERadio
+        from adafruit_ble.services.nordic import UARTService
         self.name = name
         self.ble = BLERadio()
         self.ble.name = self.name
@@ -74,8 +73,7 @@ class UARTBLECentralNRF:
         
         print("Advertising...")
 
-        #self.uart.deinit()
-        #self.uart = UARTService()
+        from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
         self.advertisement = ProvideServicesAdvertisement(self.uart)
         self.advertisement.short_name = self.name
         self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit, timeout=timeout_s)
@@ -133,7 +131,7 @@ class UARTBLECentralNRF:
         return self.evaluate()
     
     def read(self, nbytes: int | None = None ):
-        print("reading frm other side")
+    #print("reading frm other side")
         if nbytes is None:
             return None
         if nbytes == 0:

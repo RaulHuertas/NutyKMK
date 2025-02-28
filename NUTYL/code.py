@@ -41,27 +41,21 @@ def isItOn(cols, rows, keyIndex):
         colPins[i].deinit()
 
     return not returnVal
-
-bleSelectButton = 23
 import board
+bleSelectButton = 23
 col_pins = (board.D1,board.D2,board.D3,board.D4, board.D5,board.D6,)
 row_pins = (board.NFC1, board.NFC2, board.D7,board.D8,)
-bleEnabled = isItOn(col_pins, row_pins, bleSelectButton)
-#bleEnabled = True
-print("BLE enabled: ",bleEnabled)
-del isItOn
+bleEnabled  = isItOn(col_pins, row_pins, bleSelectButton)
 del board
-del col_pins
-del row_pins
+del isItOn
 
 def initKB():
-    
     import board
-    global bleEnabled
     col_pins = (board.D1,board.D2,board.D3,board.D4, board.D5,board.D6,)
     row_pins = (board.NFC1, board.NFC2, board.D7,board.D8,)
-
-    keyboard = None
+    global bleEnabled 
+    global testing
+    print("BLE enabled: ",bleEnabled)
     if bleEnabled:
         from nkbble import NKB_BLE           
         keyboard = NKB_BLE(col_pins, row_pins)
@@ -71,35 +65,27 @@ def initKB():
         i2c_bus = busio.I2C(board.D9, board.D10)
         driver = SSD1306(
             i2c=i2c_bus,
-            width=128,
-            height=32,
-            rotation=180
+            width=32,
+            height=128,
+            rotation=270
         )
-        #driver.rotation = 90
         display = Display(
-            # Mandatory:
             display=driver,
-            # Optional:
-            #width=128, # screen size
-            #height=32, # screen size
-            #rotation=-180,
-            brightness=0.5, # initial screen brightness level
+            brightness=0.4, # initial screen brightness level
             brightness_step=0.1, # used for brightness increase/decrease keycodes
             dim_time=0.5, # time in seconds to reduce screen brightness
             dim_target=0.05, # set level for brightness decrease
             off_time=5, # time in seconds to turn off screen
             powersave_dim_time=10, # time in seconds to reduce screen brightness
             powersave_dim_target=0.1, # set level for brightness decrease
-            powersave_off_time=30, # time in seconds to turn off screen
+            powersave_off_time=12, # time in seconds to turn off screen
         )
 
-        
         keyboard.extensions.append(display)
         from kmk.modules.layers import Layers
         keyboard.modules.append([
             Layers()
         ])
-
 
     else:
         from kmk.kbusb import KMKKeyboard
@@ -112,11 +98,13 @@ def initKB():
                     row_pins=row_pins,
                     # optional arguments with defaults:
                     interval=0.020,  # Debounce time in floating point seconds
-                    max_events=64
+                    max_events=4
                 )               
         keyboard = MyKeyboard(col_pins, row_pins)
         
-
+    del board
+    del col_pins
+    del row_pins
 
     keyboard.coord_mapping = [
         0,  1,  2,  3,  4,  5, 
@@ -154,13 +142,13 @@ def initKB():
         #mouseKeys = MouseKeys()
         #from nkbble import BLEFeedback
         #lightsFeedBack = BLEFeedback(board.D0, 0.03 )
-        #from kmk.modules.power import Power
-        #power = Power()
+        from kmk.modules.power import Power
+        power = Power()
         keyboard.modules = [
             split, 
             #mouseKeys,
             #lightsFeedBack, 
-            #power
+            power
         ]
     else:
         from kmk.modules.mouse_keys import MouseKeys         

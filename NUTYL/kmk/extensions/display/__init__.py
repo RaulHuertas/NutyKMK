@@ -1,6 +1,6 @@
 from supervisor import ticks_ms
 
-import displayio
+#import displayio
 from adafruit_display_text import label
 
 from kmk.extensions import Extension
@@ -85,32 +85,17 @@ class Display(Extension):
         #make_key(names=('DIS_BRD',), on_press=self.display_brightness_decrease)
 
     def render(self, layer):
-        if self.showBoot:
-            self.showBoot = False
-            splash = displayio.Group()
-            splash.append(
-                label.Label(
-                    terminalio.FONT,
-                    text="Activando escudos AT",
-                    color=0xFFFFFF,
-                    x=0,
-                    y=4,
-                )
-            )
-            self.display.root_group = splash
-            import time
-            time.sleep(1)
-            return
+        import displayio
         splash = displayio.Group()
 
             #if isinstance(entry, TextEntry):
         splash.append(
             label.Label(
                 terminalio.FONT,
-                text="Capa: "+str(layer+1),
+                text="L: "+str(layer+1),
                 color=0xFFFFFF,
                 x=0,
-                y=4,                
+                y=64,                
             )
         )
             #   pass
@@ -133,14 +118,27 @@ class Display(Extension):
         return
 
     def during_bootup(self, keyboard):
+        import displayio
         self.display.during_bootup(self.width, self.height,self.rotation)
         self.display.brightness = self.brightness
+
+        splash = displayio.Group()
+        label1 =  label.Label(
+                terminalio.FONT,
+                text="Hi!",
+                color=0xFFFFFF,
+                x=0,
+                y=64,                
+        )
+        splash.append(label1)
+
+        self.display.root_group = splash
 
     def before_matrix_scan(self, sandbox):
         if self.dim_period.tick():
             self.dim()
         if sandbox.active_layers[0] != self.prev_layer:
-            print("layer change detected")
+            #print("layer change detected")
             self.prev_layer = sandbox.active_layers[0]
             self.render(sandbox.active_layers[0])
 

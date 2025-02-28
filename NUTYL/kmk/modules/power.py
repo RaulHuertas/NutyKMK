@@ -1,10 +1,7 @@
-import board
-import digitalio
 from supervisor import ticks_ms
 
 from time import sleep
 
-from kmk.keys import make_key
 from kmk.kmktime import check_deadline
 from kmk.modules import Module
 
@@ -12,7 +9,6 @@ from kmk.modules import Module
 class Power(Module):
     def __init__(self, powersave_pin=None):
         self.enable = False
-        self.powersave_pin = powersave_pin  # Powersave pin board object
         self._powersave_start = ticks_ms()
         self._usb_last_scan = ticks_ms() - 5000
         self._psp = None  # Powersave pin object
@@ -29,7 +25,6 @@ class Power(Module):
     def _to_dict(self):
         return {
             'enable': self.enable,
-            'powersave_pin': self.powersave_pin,
             '_powersave_start': self._powersave_start,
             '_usb_last_scan': self._usb_last_scan,
             '_psp': self._psp,
@@ -68,26 +63,12 @@ class Power(Module):
 
     def enable_powersave(self, keyboard):
         '''Enables power saving features'''
-        if self._i2c_deinit_count >= self._i2c and self.powersave_pin:
-            # Allows power save to prevent RGB drain.
-            # Example here https://docs.nicekeyboards.com/#/nice!nano/pinout_schematic
-
-            if not self._psp:
-                self._psp = digitalio.DigitalInOut(self.powersave_pin)
-                self._psp.direction = digitalio.Direction.OUTPUT
-            if self._psp:
-                self._psp.value = True
-
         self.enable = True
         keyboard._trigger_powersave_enable = False
         return
 
     def disable_powersave(self, keyboard):
         '''Disables power saving features'''
-        if self._psp:
-            self._psp.value = False
-            # Allows power save to prevent RGB drain.
-            # Example here https://docs.nicekeyboards.com/#/nice!nano/pinout_schematic
 
         keyboard._trigger_powersave_disable = False
         self.enable = False
@@ -109,21 +90,12 @@ class Power(Module):
             sleep(5 / 1000)
         else:
         # elif check_deadline(ticks_ms(), self._powersave_start, 60000) :
-            sleep(180 / 1000)
+            sleep(380 / 1000)
         return
 
     def psave_time_reset(self):
         self._powersave_start = ticks_ms()
 
-    def _i2c_scan(self):
-        i2c = board.I2C()
-        while not i2c.try_lock():
-            pass
-        try:
-            self._i2c = len(i2c.scan())
-        finally:
-            i2c.unlock()
-        return
 
     def usb_rescan_timer(self):
         return bool(check_deadline(ticks_ms(), self._usb_last_scan, 5000) is False)

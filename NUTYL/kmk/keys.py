@@ -201,8 +201,8 @@ def maybe_make_navlock_key(candidate: str) -> Optional[Key]:
         # FIXME: Investigate whether this key actually works, and
         #        uncomment when/if it does.
         # (130, ('LOCKING_CAPS', 'LCAP')),
-        (70, ('PRINT_SCREEN', 'PSCREEN', 'PSCR')),
-        (71, ('SCROLL_LOCK', 'SCROLLLOCK', 'SLCK')),
+        #(70, ('PRINT_SCREEN', 'PSCREEN', 'PSCR')),
+        #(71, ('SCROLL_LOCK', 'SCROLLLOCK', 'SLCK')),
         # FIXME: Investigate whether this key actually works, and
         #        uncomment when/if it does.
         # (132, ('LOCKING_SCROLL', 'LSCRL')),
@@ -226,7 +226,7 @@ def maybe_make_navlock_key(candidate: str) -> Optional[Key]:
 
 def maybe_make_numpad_key(candidate: str) -> Optional[Key]:
     codes = (
-        (83, ('NUM_LOCK', 'NUMLOCK', 'NLCK')),
+        #(83, ('NUM_LOCK', 'NUMLOCK', 'NLCK')),
         (84, ('KP_SLASH', 'NUMPAD_SLASH', 'PSLS')),
         (85, ('KP_ASTERISK', 'NUMPAD_ASTERISK', 'PAST')),
         (86, ('KP_MINUS', 'NUMPAD_MINUS', 'PMNS')),
@@ -244,8 +244,8 @@ def maybe_make_numpad_key(candidate: str) -> Optional[Key]:
         (98, ('KP_0', 'P0', 'NUMPAD_0')),
         (99, ('KP_DOT', 'PDOT', 'NUMPAD_DOT')),
         (103, ('KP_EQUAL', 'PEQL', 'NUMPAD_EQUAL')),
-        (133, ('KP_COMMA', 'PCMM', 'NUMPAD_COMMA')),
-        (134, ('KP_EQUAL_AS400', 'NUMPAD_EQUAL_AS400')),
+        #(133, ('KP_COMMA', 'PCMM', 'NUMPAD_COMMA')),
+        #(134, ('KP_EQUAL_AS400', 'NUMPAD_EQUAL_AS400')),
     )
 
     for code, names in codes:
@@ -324,7 +324,7 @@ def maybe_make_firmware_key(candidate: str) -> Optional[Key]:
         #((('HID_SWITCH', 'HID'), handlers.hid_switch)),
         #((('RELOAD', 'RLD'), handlers.reload)),
         ((('RESET',), handlers.reset)),
-        ((('ANY',), handlers.any_pressed)),
+        #((('ANY',), handlers.any_pressed)),
     )
 
     for names, handler in keys:
