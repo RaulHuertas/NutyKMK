@@ -74,42 +74,12 @@ class Display(Extension):
         self.dim_period = PeriodicTimer(50)
         self.split_side = None
         self.showBoot = True
-        #layer1 = bitmap = displayio.OnDiskBitmap("/layer1.bmp")
-        #self.layer1 = displayio.TileGrid(layer1, pixel_shader=layer1.pixel_shader,x=0,y=0)
-        
-        
-        #layer2 = bitmap = displayio.OnDiskBitmap("/layer2.bmp")
-        #self.layer2 = displayio.TileGrid(layer2, pixel_shader=layer2.pixel_shader,x=0,y=0)
-
-        #make_key(names=('DIS_BRI',), on_press=self.display_brightness_increase)
-        #make_key(names=('DIS_BRD',), on_press=self.display_brightness_decrease)
 
     def render(self, layer):
-        import displayio
-        splash = displayio.Group()
+        self.label1.text = "Ep:"
+        self.label2.text = str(layer+1)
+        self.label2.scale = 2
 
-            #if isinstance(entry, TextEntry):
-        splash.append(
-            label.Label(
-                terminalio.FONT,
-                text="L: "+str(layer+1),
-                color=0xFFFFFF,
-                x=0,
-                y=64,                
-            )
-        )
-            #   pass
-            #elif isinstance(entry, ImageEntry):
-                #splash.append(
-                #    displayio.TileGrid(
-                #        entry.image,
-                #        pixel_shader=entry.image.pixel_shader,
-                #        x=entry.x,
-                #        y=entry.y,
-                #    )
-                #)
-                #pass
-        self.display.root_group = splash
 
     def on_runtime_enable(self, sandbox):
         return
@@ -122,15 +92,29 @@ class Display(Extension):
         self.display.during_bootup(self.width, self.height,self.rotation)
         self.display.brightness = self.brightness
 
+        self.logo = displayio.OnDiskBitmap("/logo.bmp")
+        self.logoTile = displayio.TileGrid(self.logo, pixel_shader=self.logo.pixel_shader)
+
         splash = displayio.Group()
-        label1 =  label.Label(
+        self.label1 =  label.Label(
                 terminalio.FONT,
-                text="Hi!",
+                text="Nuty",
                 color=0xFFFFFF,
                 x=0,
-                y=64,                
+                y=96,                
         )
-        splash.append(label1)
+        self.label2 =  label.Label(
+                terminalio.FONT,
+                text="Mini",
+                color=0xFFFFFF,
+                x=0,
+                y=112,                
+                scale = 1
+        )
+
+        splash.append(self.logoTile)
+        splash.append(self.label1)
+        splash.append(self.label2)
 
         self.display.root_group = splash
 

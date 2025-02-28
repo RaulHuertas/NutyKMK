@@ -69,13 +69,14 @@ def initKB():
             height=128,
             rotation=270
         )
+        #driver.root_group = None
         display = Display(
             display=driver,
             brightness=0.4, # initial screen brightness level
             brightness_step=0.1, # used for brightness increase/decrease keycodes
-            dim_time=0.5, # time in seconds to reduce screen brightness
-            dim_target=0.05, # set level for brightness decrease
-            off_time=5, # time in seconds to turn off screen
+            dim_time=5.0, # time in seconds to reduce screen brightness
+            dim_target=0.03, # set level for brightness decrease
+            off_time=15, # time in seconds to turn off screen
             powersave_dim_time=10, # time in seconds to reduce screen brightness
             powersave_dim_target=0.1, # set level for brightness decrease
             powersave_off_time=12, # time in seconds to turn off screen
