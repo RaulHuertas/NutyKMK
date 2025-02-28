@@ -10,9 +10,6 @@ from adafruit_midi.stop import Stop
 
 from kmk.keys import Key, make_argumented_key
 from kmk.modules import Module
-from kmk.utils import Debug
-
-debug = Debug(__name__)
 
 
 class MidiKey(Key):
@@ -76,8 +73,8 @@ class MidiKeys(Module):
             self.midi = adafruit_midi.MIDI(midi_out=usb_midi.ports[1], out_channel=0)
         except IndexError:
             self.midi = None
-            if debug.enabled:
-                debug('No midi device found.')
+            # if debug_enabled:
+            print('No midi device found.')
 
     def during_bootup(self, keyboard):
         return None

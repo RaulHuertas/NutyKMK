@@ -176,18 +176,18 @@ def maybe_make_fn_key(candidate: str) -> Optional[Key]:
         (67, ('F10',)),
         (68, ('F11',)),
         (69, ('F12',)),
-        (104, ('F13',)),
-        (105, ('F14',)),
-        (106, ('F15',)),
-        (107, ('F16',)),
-        (108, ('F17',)),
-        (109, ('F18',)),
-        (110, ('F19',)),
-        (111, ('F20',)),
-        (112, ('F21',)),
-        (113, ('F22',)),
+        #(104, ('F13',)),
+        #(105, ('F14',)),
+        #(106, ('F15',)),
+        #(107, ('F16',)),
+        #(108, ('F17',)),
+        #(109, ('F18',)),
+        #(110, ('F19',)),
+        #(111, ('F20',)),
+        #(112, ('F21',)),
+        #(113, ('F22',)),
         (114, ('F23',)),
-        (115, ('F24',)),
+        #(115, ('F24',)),
     )
 
     for code, names in codes:
@@ -285,13 +285,44 @@ def maybe_make_shifted_key(candidate: str) -> Optional[Key]:
             )
 
 
+def maybe_make_international_key(candidate: str) -> Optional[Key]:
+    codes = (
+        (50, ('NONUS_HASH', 'NUHS')),
+        (100, ('NONUS_BSLASH', 'NUBS')),
+        (101, ('APP', 'APPLICATION', 'SEL', 'WINMENU')),
+        #(135, ('INT1', 'RO')),
+        #(136, ('INT2', 'KANA')),
+        #(137, ('INT3', 'JYEN')),
+        #(138, ('INT4', 'HENK')),
+        #(139, ('INT5', 'MHEN')),
+        #(140, ('INT6',)),
+        #(141, ('INT7',)),
+        #(142, ('INT8',)),
+        #(143, ('INT9',)),
+        #(144, ('LANG1', 'HAEN')),
+        #(145, ('LANG2', 'HAEJ')),
+        #(146, ('LANG3',)),
+        #(147, ('LANG4',)),
+        #(148, ('LANG5',)),
+        #(149, ('LANG6',)),
+        #(150, ('LANG7',)),
+        #(151, ('LANG8',)),
+        #(152, ('LANG9',)),
+    )
+
+    for code, names in codes:
+        if candidate in names:
+            return make_key(names=names, constructor=KeyboardKey, code=code)
+
+
 def maybe_make_firmware_key(candidate: str) -> Optional[Key]:
     keys = (
         ((('BLE_REFRESH',), handlers.ble_refresh)),
         ((('BLE_DISCONNECT',), handlers.ble_disconnect)),
-        ((('BOOTLOADER',), handlers.bootloader)),
-        ((('HID_SWITCH', 'HID'), handlers.hid_switch)),
-        ((('RELOAD', 'RLD'), handlers.reload)),
+        #((('BOOTLOADER',), handlers.bootloader)),
+        ((('DEBUG', 'DBG'), handlers.debug_pressed)),
+        #((('HID_SWITCH', 'HID'), handlers.hid_switch)),
+        #((('RELOAD', 'RLD'), handlers.reload)),
         ((('RESET',), handlers.reset)),
         ((('ANY',), handlers.any_pressed)),
     )
@@ -332,7 +363,9 @@ KEY_GENERATORS = (
     # the 'shifted' keys as raw keys. Under the hood we're still
     # sending Shift+(whatever key is normally pressed) to get these, so
     # for example `KC_AT` will hold shift and press 2.
-    maybe_make_shifted_key,
+    #maybe_make_shifted_key,
+    # International
+    maybe_make_international_key,
 )
 
 

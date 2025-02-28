@@ -10,9 +10,6 @@ from storage import getmount
 from kmk.hid import HIDModes
 from kmk.kmktime import check_deadline
 from kmk.modules import Module
-from kmk.utils import Debug
-
-debug = Debug(__name__)
 
 
 class SplitSide:
@@ -41,6 +38,7 @@ class Split(Module):
         data_pin2=None,
         uart_flip=True,
         use_pio=False,
+        debug_enabled=False,
     ):
         self._is_target = True
         self._uart_buffer = []
@@ -55,6 +53,7 @@ class Split(Module):
         self._use_pio = use_pio
         self._uart = None
         self._uart_interval = uart_interval
+        self._debug_enabled = debug_enabled
         self.uart_header = bytearray([0xB2])  # Any non-zero byte should work
 
         if self.split_type == SplitType.BLE:
@@ -69,8 +68,7 @@ class Split(Module):
                 self.ProvideServicesAdvertisement = ProvideServicesAdvertisement
                 self.UARTService = UARTService
             except ImportError:
-                if debug.enabled:
-                    debug('BLE Import error')
+                print('BLE Import error')
                 return  # BLE isn't supported on this platform
             self._ble_last_scan = ticks_ms() - 5000
             self._connection_count = 0
@@ -131,7 +129,8 @@ class Split(Module):
                     self._uart = self.PIO_UART(tx=self.data_pin2, rx=self.data_pin)
                 else:
                     self._uart = busio.UART(
-                        tx=self.data_pin2, rx=self.data_pin, timeout=self._uart_interval
+                        tx=self.data_pin2, rx=self.data_pin, timeout=self._uart_interval,
+                        baudrate=115200
                     )
             else:
                 if self._use_pio:
@@ -160,9 +159,9 @@ class Split(Module):
                     cm.append(cols_to_calc * (rows_to_calc + ridx) + cidx)
 
             keyboard.coord_mapping = tuple(cm)
-
-        if not keyboard.coord_mapping and debug.enabled:
-            debug('Error: please provide coord_mapping for custom scanner')
+        else:
+            #print('Error: please provide coord_mapping for custom scanner')
+            pass
 
         if self.split_side == SplitSide.RIGHT:
             offset = self.split_offset
@@ -193,8 +192,7 @@ class Split(Module):
             elif self.split_type == SplitType.ONEWIRE:
                 pass  # Protocol needs written
             else:
-                if debug.enabled:
-                    debug('Unexpected case in after_matrix_scan')
+                print('Unexpected case in after_matrix_scan')
 
         return
 
@@ -235,23 +233,8 @@ class Split(Module):
     def _check_if_split_connected(self):
         # I'm looking for a way how to recognize which connection is on and which one off
         # For now, I found that service name relation to having other CP device
-        if self._connection_count == 0:
-            return False
-        if self._connection_count == 2:
-            self._split_connected = True
-            return True
-
-        # Polling this takes some time so I check only if connection_count changed
-        if self._previous_connection_count == self._connection_count:
-            return self._split_connected
-
-        bleio_connection = self._ble.connections[0]._bleio_connection
-        connection_services = bleio_connection.discover_remote_services()
-        for service in connection_services:
-            if str(service.uuid).startswith("UUID('adaf0001"):
-                self._split_connected = True
-                return True
-        return False
+        
+        return self._uart.connected()
 
     def _initiator_scan(self):
         '''Scans for target device'''
@@ -268,21 +251,21 @@ class Split(Module):
                     break
 
         if not self._uart:
-            if debug.enabled:
-                debug('Scanning')
+            if self._debug_enabled:
+                print('Scanning')
             self._ble.stop_scan()
             for adv in self._ble.start_scan(
                 self.ProvideServicesAdvertisement, timeout=20
             ):
-                if debug.enabled:
-                    debug('Scanning')
+                if self._debug_enabled:
+                    print('Scanning')
                 if self.UARTService in adv.services and adv.rssi > -70:
                     self._uart_connection = self._ble.connect(adv)
                     self._uart_connection.connection_interval = 11.25
                     self._uart = self._uart_connection[self.UARTService]
                     self._ble.stop_scan()
-                    if debug.enabled:
-                        debug('Scan complete')
+                    if self._debug_enabled:
+                        print('Scan complete')
                     break
         self._ble.stop_scan()
 
@@ -291,8 +274,8 @@ class Split(Module):
         # Give previous advertising some time to complete
         if self._advertising:
             if self._check_if_split_connected():
-                if debug.enabled:
-                    debug('Advertising complete')
+                if self._debug_enabled:
+                    print('Advertising complete')
                 self._ble.stop_advertising()
                 self._advertising = False
                 return
@@ -300,12 +283,12 @@ class Split(Module):
             if not self.ble_rescan_timer():
                 return
 
-            if debug.enabled:
-                debug('Advertising not answered')
+            if self._debug_enabled:
+                print('Advertising not answered')
 
         self._ble.stop_advertising()
-        if debug.enabled:
-            debug('Advertising')
+        if self._debug_enabled:
+            print('Advertising')
         # Uart must not change on this connection if reconnecting
         if not self._uart:
             self._uart = self.UARTService()
@@ -341,11 +324,11 @@ class Split(Module):
                 try:
                     self._uart.disconnect()
                 except:  # noqa: E722
-                    if debug.enabled:
-                        debug('UART disconnect failed')
+                    if self._debug_enabled:
+                        print('UART disconnect failed')
 
-                if debug.enabled:
-                    debug('Connection error')
+                if self._debug_enabled:
+                    print('Connection error')
                 self._uart_connection = None
                 self._uart = None
 

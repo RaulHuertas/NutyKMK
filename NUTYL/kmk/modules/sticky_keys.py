@@ -124,17 +124,20 @@ class StickyKeys(Module):
             key.state = _SK_RELEASED
         # Key in HOLD state is handled like a regular release.
         elif key.state == _SK_HOLD:
-            keyboard.cancel_timeout(key.timeout)
-            self.deactivate(keyboard, key)
+            for sk in self.active_keys.copy():
+                keyboard.cancel_timeout(sk.timeout)
+                self.deactivate(keyboard, sk)
 
     def on_release_after(self, keyboard, key):
         # Key is still pressed but nothing else happend: set to HOLD.
         if key.state == _SK_PRESSED:
-            key.state = _SK_HOLD
-            keyboard.cancel_timeout(key.timeout)
+            for sk in self.active_keys:
+                key.state = _SK_HOLD
+                keyboard.cancel_timeout(sk.timeout)
         # Key got released but nothing else happend: deactivate.
         elif key.state == _SK_RELEASED:
-            self.deactivate(keyboard, key)
+            for sk in self.active_keys.copy():
+                self.deactivate(keyboard, sk)
 
     def activate(self, keyboard, key):
         if debug.enabled:

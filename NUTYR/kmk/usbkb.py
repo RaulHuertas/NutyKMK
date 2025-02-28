@@ -6,7 +6,7 @@ except ImportError:
 from collections import namedtuple
 from keypad import Event as KeyEvent
 
-from kmk.hid import  USBHID, AbstractHID, HIDModes
+from kmk.hid import BLEHID, USBHID, AbstractHID, HIDModes
 from kmk.keys import KC, Key
 from kmk.modules import Module
 from kmk.scanners.keypad import MatrixScanner
@@ -45,6 +45,7 @@ class USBKB:
     matrix = None
 
     modules = []
+    extensions = []
     sandbox = Sandbox()
 
     #####
@@ -53,12 +54,15 @@ class USBKB:
     axes = set()
     _coordkeys_pressed = {}
     hid_type = HIDModes.USB
+    secondary_hid_type = None
     _hid_helper = None
     _hid_send_enabled = False
     hid_pending = False
     matrix_update = None
     secondary_matrix_update = None
     matrix_update_queue = []
+    _trigger_powersave_enable = False
+    _trigger_powersave_disable = False
     _go_args = None
     _resume_buffer = []
     _resume_buffer_x = []
@@ -181,14 +185,6 @@ class USBKB:
 
         self._resume_buffer_x = buffer
 
-    @property
-    def debug_enabled(self) -> bool:
-        return debug.enabled
-
-    @debug_enabled.setter
-    def debug_enabled(self, enabled: bool):
-        debug.enabled = enabled
-
     def pre_process_key(
         self,
         key: Key,
@@ -271,7 +267,6 @@ class USBKB:
         To save RAM on boards that don't use Split, we don't import Split
         and do an isinstance check, but instead do string detection
         '''
-        return
         if any(x.__class__.__module__ == 'kmk.modules.split' for x in self.modules):
             return
 
@@ -286,6 +281,8 @@ class USBKB:
             self._hid_helper = AbstractHID
         elif self.hid_type == HIDModes.USB:
             self._hid_helper = USBHID
+        elif self.hid_type == HIDModes.BLE:
+            self._hid_helper = BLEHID
         else:
             self._hid_helper = AbstractHID
         self._hid_helper = self._hid_helper(**self._go_args)
@@ -335,6 +332,18 @@ class USBKB:
         if debug.enabled:
             debug('modules=', [_.__class__.__name__ for _ in self.modules])
 
+        for idx, ext in enumerate(self.extensions):
+            try:
+                ext.during_bootup(self)
+            except Exception as err:
+                debug_error(ext, 'during_bootup', err)
+                self.extensions[idx] = None
+
+        self.extensions[:] = [_ for _ in self.extensions if _]
+
+        if debug.enabled:
+            debug('extensions=', [_.__class__.__name__ for _ in self.extensions])
+
     def before_matrix_scan(self) -> None:
         for module in self.modules:
             try:
@@ -342,7 +351,11 @@ class USBKB:
             except Exception as err:
                 debug_error(module, 'before_matrix_scan', err)
 
-        
+        for ext in self.extensions:
+            try:
+                ext.before_matrix_scan(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'before_matrix_scan', err)
 
     def after_matrix_scan(self) -> None:
         for module in self.modules:
@@ -351,6 +364,11 @@ class USBKB:
             except Exception as err:
                 debug_error(module, 'after_matrix_scan', err)
 
+        for ext in self.extensions:
+            try:
+                ext.after_matrix_scan(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'after_matrix_scan', err)
 
     def before_hid_send(self) -> None:
         for module in self.modules:
@@ -359,6 +377,11 @@ class USBKB:
             except Exception as err:
                 debug_error(module, 'before_hid_send', err)
 
+        for ext in self.extensions:
+            try:
+                ext.before_hid_send(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'before_hid_send', err)
 
     def after_hid_send(self) -> None:
         for module in self.modules:
@@ -367,9 +390,37 @@ class USBKB:
             except Exception as err:
                 debug_error(module, 'after_hid_send', err)
 
-        
-        
-        
+        for ext in self.extensions:
+            try:
+                ext.after_hid_send(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'after_hid_send', err)
+
+    def powersave_enable(self) -> None:
+        for module in self.modules:
+            try:
+                module.on_powersave_enable(self)
+            except Exception as err:
+                debug_error(module, 'powersave_enable', err)
+
+        for ext in self.extensions:
+            try:
+                ext.on_powersave_enable(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'powersave_enable', err)
+
+    def powersave_disable(self) -> None:
+        for module in self.modules:
+            try:
+                module.on_powersave_disable(self)
+            except Exception as err:
+                debug_error(module, 'powersave_disable', err)
+
+        for ext in self.extensions:
+            try:
+                ext.on_powersave_disable(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'powersave_disable', err)
 
     def deinit(self) -> None:
         for module in self.modules:
@@ -378,12 +429,17 @@ class USBKB:
             except Exception as err:
                 debug_error(module, 'deinit', err)
 
-        
+        for ext in self.extensions:
+            try:
+                ext.deinit(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'deinit', err)
 
-    def go(self, hid_type=HIDModes.USB, **kwargs) -> None:
+    def go(self, hid_type=HIDModes.USB, secondary_hid_type=None, **kwargs) -> None:
         try:
             self._init(
                 hid_type=hid_type,
+                secondary_hid_type=secondary_hid_type,
                 **kwargs,
             )
             while True:
@@ -406,10 +462,12 @@ class USBKB:
     def _init(
         self,
         hid_type: HIDModes = HIDModes.USB,
-        secondary_hid_type: Optional[HIDModes] = None,        **kwargs,
+        secondary_hid_type: Optional[HIDModes] = None,
+        **kwargs,
     ) -> None:
         self._go_args = kwargs
         self.hid_type = hid_type
+        self.secondary_hid_type = secondary_hid_type
 
         if debug.enabled:
             debug('Initialising ', self)
@@ -466,3 +524,8 @@ class USBKB:
 
         self.after_hid_send()
 
+        if self._trigger_powersave_enable:
+            self.powersave_enable()
+
+        if self._trigger_powersave_disable:
+            self.powersave_disable()

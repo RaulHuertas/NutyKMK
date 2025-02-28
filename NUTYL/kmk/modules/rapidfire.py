@@ -1,16 +1,7 @@
-from micropython import const
-
 from random import randint
 
 from kmk.keys import Key, make_argumented_key
 from kmk.modules import Module
-from kmk.utils import Debug
-
-debug = Debug(__name__)
-
-_INACTIVE = const(0)
-_HOLD = const(1)
-_ACTIVE = const(2)
 
 
 class RapidFireKey(Key):
@@ -22,7 +13,7 @@ class RapidFireKey(Key):
         enable_interval_randomization=False,
         randomization_magnitude=15,
         toggle=False,
-        **kwargs,
+        *kwargs,
     ):
         super().__init__(**kwargs)
         self.key = key
@@ -31,11 +22,13 @@ class RapidFireKey(Key):
         self.enable_interval_randomization = enable_interval_randomization
         self.randomization_magnitude = randomization_magnitude
         self.toggle = toggle
-        self._state = _INACTIVE
-        self._timeout = None
 
 
 class RapidFire(Module):
+    _active_keys = {}
+    _toggled_keys = []
+    _waiting_keys = []
+
     def __init__(self):
         make_argumented_key(
             names=('RF',),
@@ -44,57 +37,51 @@ class RapidFire(Module):
             on_release=self._rf_released,
         )
 
-    def _on_timer_timeout(self, key, keyboard):
-        if key._state == _HOLD:
-            key._state = _ACTIVE
-            keyboard.remove_key(key.key)
-            key._timeout = keyboard.set_timeout(
-                1, lambda: self._on_timer_timeout(key, keyboard)
-            )
-            return
-
-        keyboard.add_key(key.key)
-        keyboard.set_timeout(1, lambda: keyboard.remove_key(key.key))
-
-        interval = key.interval
+    def _get_repeat(self, key):
         if key.enable_interval_randomization:
-            interval += randint(
+            return key.interval + randint(
                 -key.randomization_magnitude, key.randomization_magnitude
             )
-        key._timeout = keyboard.set_timeout(
-            interval, lambda: self._on_timer_timeout(key, keyboard)
-        )
+        return key.interval
 
-        if debug.enabled:
-            debug(key.key, ' @', interval, 'ms')
+    def _on_timer_timeout(self, key, keyboard):
+        keyboard.tap_key(key.key)
+        if key in self._waiting_keys:
+            self._waiting_keys.remove(key)
+        if key.toggle and key not in self._toggled_keys:
+            self._toggled_keys.append(key)
+        self._active_keys[key] = keyboard.set_timeout(
+            self._get_repeat(key), lambda: self._on_timer_timeout(key, keyboard)
+        )
 
     def _rf_pressed(self, key, keyboard, *args, **kwargs):
-        if key._state == _ACTIVE:
+        if key in self._toggled_keys:
+            self._toggled_keys.remove(key)
             self._deactivate_key(key, keyboard)
             return
-
-        keyboard.add_key(key.key)
-        key._state = _HOLD
-        key._timeout = keyboard.set_timeout(
-            key.timeout, lambda: self._on_timer_timeout(key, keyboard)
-        )
+        if key.timeout > 0:
+            keyboard.tap_key(key.key)
+            self._waiting_keys.append(key)
+            self._active_keys[key] = keyboard.set_timeout(
+                key.timeout, lambda: self._on_timer_timeout(key, keyboard)
+            )
+        else:
+            self._on_timer_timeout(key, keyboard)
 
     def _rf_released(self, key, keyboard, *args, **kwargs):
-        if key._state == _ACTIVE:
-            if key.toggle:
-                return
-            key._state = _INACTIVE
-        elif key._state == _INACTIVE:
+        if key not in self._active_keys:
             return
-        else:
-            keyboard.remove_key(key.key)
-
+        if key in self._toggled_keys:
+            if key not in self._waiting_keys:
+                return
+            self._toggled_keys.remove(key)
+        if key in self._waiting_keys:
+            self._waiting_keys.remove(key)
         self._deactivate_key(key, keyboard)
 
     def _deactivate_key(self, key, keyboard):
-        keyboard.cancel_timeout(key._timeout)
-        key._state = _INACTIVE
-        key._timeout = None
+        keyboard.cancel_timeout(self._active_keys[key])
+        self._active_keys.pop(key)
 
     def during_bootup(self, keyboard):
         return

@@ -46,4 +46,3 @@ class Debug:
     def enabled(self, enabled: bool):
         global _debug_enabled
         _debug_enabled = enabled
-        self('debug.enabled=', enabled)

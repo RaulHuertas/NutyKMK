@@ -5,9 +5,6 @@ import time
 
 from kmk.extensions import Extension, InvalidExtensionEnvironment
 from kmk.keys import make_key
-from kmk.utils import Debug
-
-debug = Debug(__name__)
 
 
 class statusLED(Extension):
@@ -23,8 +20,7 @@ class statusLED(Extension):
             try:
                 self._leds.append(pwmio.PWMOut(led))
             except Exception as e:
-                if debug.enabled:
-                    debug(e)
+                print(e)
                 raise InvalidExtensionEnvironment(
                     'Unable to create pulseio.PWMOut() instance with provided led_pin'
                 )

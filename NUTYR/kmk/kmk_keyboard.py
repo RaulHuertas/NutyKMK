@@ -6,7 +6,7 @@ except ImportError:
 from collections import namedtuple
 from keypad import Event as KeyEvent
 
-from kmk.hid import  USBHID, AbstractHID, HIDModes
+from kmk.hid import BLEHID, USBHID, AbstractHID, HIDModes
 from kmk.keys import KC, Key
 from kmk.modules import Module
 from kmk.scanners.keypad import MatrixScanner
@@ -45,6 +45,7 @@ class KMKKeyboard:
     matrix = None
 
     modules = []
+    extensions = []
     sandbox = Sandbox()
 
     #####
@@ -184,6 +185,14 @@ class KMKKeyboard:
 
         self._resume_buffer_x = buffer
 
+    @property
+    def debug_enabled(self) -> bool:
+        return debug.enabled
+
+    @debug_enabled.setter
+    def debug_enabled(self, enabled: bool):
+        debug.enabled = enabled
+
     def pre_process_key(
         self,
         key: Key,
@@ -280,6 +289,8 @@ class KMKKeyboard:
             self._hid_helper = AbstractHID
         elif self.hid_type == HIDModes.USB:
             self._hid_helper = USBHID
+        elif self.hid_type == HIDModes.BLE:
+            self._hid_helper = BLEHID
         else:
             self._hid_helper = AbstractHID
         self._hid_helper = self._hid_helper(**self._go_args)
@@ -329,6 +340,18 @@ class KMKKeyboard:
         if debug.enabled:
             debug('modules=', [_.__class__.__name__ for _ in self.modules])
 
+        for idx, ext in enumerate(self.extensions):
+            try:
+                ext.during_bootup(self)
+            except Exception as err:
+                debug_error(ext, 'during_bootup', err)
+                self.extensions[idx] = None
+
+        self.extensions[:] = [_ for _ in self.extensions if _]
+
+        if debug.enabled:
+            debug('extensions=', [_.__class__.__name__ for _ in self.extensions])
+
     def before_matrix_scan(self) -> None:
         for module in self.modules:
             try:
@@ -336,7 +359,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'before_matrix_scan', err)
 
-        
+        for ext in self.extensions:
+            try:
+                ext.before_matrix_scan(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'before_matrix_scan', err)
 
     def after_matrix_scan(self) -> None:
         for module in self.modules:
@@ -345,6 +372,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'after_matrix_scan', err)
 
+        for ext in self.extensions:
+            try:
+                ext.after_matrix_scan(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'after_matrix_scan', err)
 
     def before_hid_send(self) -> None:
         for module in self.modules:
@@ -353,6 +385,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'before_hid_send', err)
 
+        for ext in self.extensions:
+            try:
+                ext.before_hid_send(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'before_hid_send', err)
 
     def after_hid_send(self) -> None:
         for module in self.modules:
@@ -361,7 +398,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'after_hid_send', err)
 
-        
+        for ext in self.extensions:
+            try:
+                ext.after_hid_send(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'after_hid_send', err)
 
     def powersave_enable(self) -> None:
         for module in self.modules:
@@ -370,7 +411,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'powersave_enable', err)
 
-        
+        for ext in self.extensions:
+            try:
+                ext.on_powersave_enable(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'powersave_enable', err)
 
     def powersave_disable(self) -> None:
         for module in self.modules:
@@ -379,7 +424,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'powersave_disable', err)
 
-        
+        for ext in self.extensions:
+            try:
+                ext.on_powersave_disable(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'powersave_disable', err)
 
     def deinit(self) -> None:
         for module in self.modules:
@@ -388,7 +437,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'deinit', err)
 
-        
+        for ext in self.extensions:
+            try:
+                ext.deinit(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'deinit', err)
 
     def go(self, hid_type=HIDModes.USB, secondary_hid_type=None, **kwargs) -> None:
         try:

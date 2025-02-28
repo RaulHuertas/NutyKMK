@@ -21,10 +21,20 @@ class UARTBLECentralNRF:
         self.name = name
         self.ble = BLERadio()
         self.ble.name = self.name
+        self.ble.stop_advertising()
         
         self.uart = UARTService()
         self.connectionState = CONNECTING
         self.connectionFails = 0
+
+        self.statusCheckCounter = 0
+    
+    def timeToChechStatus(self):
+        if self.statusCheckCounter > 5:
+            self.statusCheckCounter = 0
+            return True
+        else:
+            return False
 
     def longDisconnected(self):
         return self.connectionFails > 5
@@ -34,10 +44,14 @@ class UARTBLECentralNRF:
     
     def evaluate(self):
         if self.connectionState == CONNECTED:
-            if not self.ble.connected :
-                self.disconnect()
+            self.statusCheckCounter += 1
+            if self.timeToChechStatus():
+                if not self.ble.connected :
+                    self.disconnect()
         else:
+            #print("evaluate connectiing")
             self.evaluateConnecting()
+            return b""
     
     @property
     def in_waiting(self):
@@ -48,16 +62,22 @@ class UARTBLECentralNRF:
     def evaluateConnecting(self):
         #since this side won't connect to the host, 
         #the central can block
-        advertisingTimeUnit = 0.625
-        timeout_s = 10
+        advertisingTimeUnit = 1.25
+        timeout_s = 2
         if self.longDisconnected():
-            timeout_s = 5
+            timeout_s = 1
+        if  self.ble.advertising:
+            print("already advertising")
+            return
+        
+        
         print("Advertising...")
+
         #self.uart.deinit()
         #self.uart = UARTService()
         self.advertisement = ProvideServicesAdvertisement(self.uart)
         self.advertisement.short_name = self.name
-        self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit*2, timeout=timeout_s)
+        self.ble.start_advertising(self.advertisement, interval=advertisingTimeUnit, timeout=timeout_s)
         accumWaitingTime = 0
         
         while (not self.ble.connected) and accumWaitingTime<timeout_s:
@@ -69,7 +89,7 @@ class UARTBLECentralNRF:
         if self.ble.connected:
             self.connectionState = CONNECTED
             self.connectionFails = 0
-            print("Connected")
+            print("Split Connected")
             return
         else:
             self.connectionFails += 1
@@ -96,9 +116,8 @@ class UARTBLECentralNRF:
             connOK = True
         except:
             pass
-        if  not self.ble.connected:
-            self.disconnect()
-
+        self.evaluate()
+        
     def readline(self) -> bytes | None:
         if self.connectionState != CONNECTED:
             self.evaluateConnecting()
@@ -110,10 +129,7 @@ class UARTBLECentralNRF:
             connOK = True
         except:
             pass
-        if not connOK or not self.ble.connected :
-            self.disconnect()
-            return b""
-        return s
+        return self.evaluate()
     
     def read(self, nbytes: int | None = None ):
         if nbytes is None:
@@ -131,7 +147,5 @@ class UARTBLECentralNRF:
             connOK = True
         except:
             pass
-        if not connOK or not self.ble.connected:
-            self.disconnect()
-
+        self.evaluate()
         return retValue
