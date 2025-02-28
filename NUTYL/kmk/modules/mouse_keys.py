@@ -25,8 +25,8 @@ class MouseKeys(Module):
             (0x01, ('MB_LMB',)),
             (0x02, ('MB_RMB',)),
             (0x04, ('MB_MMB',)),
-            (0x08, ('MB_BTN4',)),
-            (0x10, ('MB_BTN5',)),
+            #(0x08, ('MB_BTN4',)),
+            #(0x10, ('MB_BTN5',)),
         )
         for code, names in codes:
             make_key(names=names, constructor=MouseKey, code=code)

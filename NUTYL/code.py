@@ -150,6 +150,8 @@ def initKB():
             #lightsFeedBack, 
             power
         ]
+        from keyAssignationsBLE import assignKeys
+        keyboard.keymap = assignKeys()
     else:
         from kmk.modules.mouse_keys import MouseKeys         
         from kmk.modules.midi import MidiKeys
@@ -161,6 +163,11 @@ def initKB():
             lightsFeedBack, 
             MidiKeys()
         ]
+        
+        from keyAssignations import assignKeys
+        keyboard.keymap = assignKeys()
+
+        
 
     keyboard.coord_mapping =  [
             0,  1,  2,  3,  4,  5, 
@@ -185,9 +192,6 @@ if __name__ == '__main__':
     kb = initKB()
     kb.debug_enabled = testing
 
-    from keyAssignations import assignKeys
-    kb.keymap = assignKeys()
-    del assignKeys
     if bleEnabled:
         kb.powersave_enable = True
         kb.go(False)
