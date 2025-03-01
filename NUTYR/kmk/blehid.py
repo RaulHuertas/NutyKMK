@@ -271,7 +271,7 @@ class BLEHID(AbstractHID):
         # keystrokes in the air
         #if not self.ble.connected or not self.hid.devices:
         #    self.start_advertising()
-        self.pairing = create_task(self.start_advertising,period_ms=5000)
+        self.pairing = create_task(self.start_advertising,period_ms=5000, after_ms=3000)
 
     @property
     def devices(self):
@@ -326,15 +326,29 @@ class BLEHID(AbstractHID):
 
         _bleio.adapter.erase_bonding()
 
+    def isPaired(self):
+        ret = False
+        for  conn in self.ble.connections:
+            if conn.paired:
+                if conn.connected:
+                    ret = True
+                    break
+        
+        return ret
+        
+
     def start_advertising(self):
         print("hid start_advertising 1")
-        if not self.ble.advertising and not self.hid.devices:
+        print("self.ble.advertising",self.ble.advertising)
+        print("self.isPaired: ",self.isPaired())
+        if not self.ble.advertising and not self.isPaired():
             print("hid start_advertising 2")
             advertisement = ProvideServicesAdvertisement(self.hid)
             advertisement.appearance = self.BLE_APPEARANCE_HID_KEYBOARD
-            self.ble.start_advertising(advertisement,timeout=3)
+            self.ble.start_advertising(advertisement,timeout=5)
             self.advertingStartTime = time.monotonic()
-            self.stop_advertising()
+            #time.sleep(5.4)
+            #self.stop_advertising()
 
     def stop_advertising(self):
         print("hid stop_advertising")
