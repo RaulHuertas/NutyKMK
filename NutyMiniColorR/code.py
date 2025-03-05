@@ -76,27 +76,43 @@ def initKBUSB():
     return keyboard
 
 def initKBBLE():
-    from nkbusb import NKB_USB
     from nkble import BLEFeedback
-    from kmk.modules.splituart import SplitUART, SplitSide
-    keyboard = NKB_USB(col_pins, row_pins)
-    split = SplitUART(
+    from kmk.kbble import KMKBLEKeyboard
+    from kmk.scanners import DiodeOrientation
+    from kmk.scanners.keypad import MatrixScanner
+    global row_pins, col_pins
+    diode_orientation = DiodeOrientation.ROW2COL
+    class MyKeyboard(KMKBLEKeyboard):
+        def __init__(self, col_pins, row_pins):   
+            # create and register the scanner
+            self.matrix = MatrixScanner(
+                # required arguments:
+                column_pins=col_pins,
+                row_pins=row_pins,
+                # optional arguments with defaults:
+                columns_to_anodes=diode_orientation,
+                interval=0.020,  # Debounce time in floating point seconds
+                max_events=2
+            )
+    keyboard = MyKeyboard(col_pins, row_pins)    
+    from kmk.modules.splitbl import SplitBL, SplitSide, SplitRole
+    split = SplitBL(
         split_side=SplitSide.RIGHT,
-        split_target_left=True,
-        data_pin = board.NFC2,#RX
-        data_pin2 = board.NFC1,#TX
+        split_role=SplitRole.Primary,
         debug_enabled = testing
-    )   
+    )
     from kmk.modules.power import Power
     power = Power()
-    #from kmk.modules.holdtap import HoldTap
-    #from kmk.modules.mouse_keys import MouseKeys
+    from kmk.modules.holdtap import HoldTap
+    from kmk.modules.mouse_keys import MouseKeys
+    from kmk.extensions.media_keys import MediaKeys
+    #from kmk.modules.midi import MidiKeys   
     keyboard.modules = [
         split,
         power,
-        #HoldTap(),
-        #MouseKeys(),
-        BLEFeedback()
+        HoldTap(),
+        MouseKeys(),
+        BLEFeedback(),
     ]         
     return keyboard            
 

@@ -13,23 +13,6 @@ from microcontroller import nvm
 import pwmio
 import board
  
-class NKB_BLE(USBKB):
-    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.ROW2COL):   
-        # create and register the scanner
-        self.matrix = MatrixScanner(
-            # required arguments:
-            column_pins=col_pins,
-            row_pins=row_pins,
-            # optional arguments with defaults:
-            columns_to_anodes=diode_orientation,
-            interval=0.020,  # Debounce time in floating point seconds
-            max_events=4
-        )
-        import digitalio
-        chargeFastPin = digitalio.DigitalInOut(board.CHARGE_RATE)
-        chargeFastPin.direction = digitalio.Direction.OUTPUT
-        chargeFastPin.value = False
-
 class BLEFeedback(Layers):
 
     def __init__(self):

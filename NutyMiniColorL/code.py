@@ -77,28 +77,20 @@ def initKBUSB():
 def initKBBLE():
     
     from nkble import NKB_BLE, BLEFeedback
-    from kmk.modules.splituart import SplitUART, SplitSide
+    from kmk.modules.splitbl import SplitBL, SplitSide,SplitRole
     keyboard = NKB_BLE(col_pins, row_pins)
 
-    split = SplitUART(
-            split_side=SplitSide.LEFT,
-            split_target_left=True,
-            data_pin = board.NFC1,#RX
-            data_pin2 = board.NFC2,#TX
-            debug_enabled = testing
-        )   
+    split = SplitBL(
+        split_side=SplitSide.LEFT,
+        split_role=SplitRole.Secondary,
+        debug_enabled=testing
+    )   
     from kmk.modules.power import Power
     power = Power()
-    from kmk.modules.holdtap import HoldTap
-    from kmk.modules.mouse_keys import MouseKeys
-    from kmk.modules.midi import MidiKeys
     keyboard.modules = [
         split,
         power,
-        HoldTap(),
-        MouseKeys(),
         BLEFeedback(),
-        MidiKeys()
     ]         
     return keyboard            
 
@@ -118,9 +110,14 @@ if resetBondsTestA and resetBondsTestB:
 
     
 print("BLE ENABLED", bleEnabled)
-def assignKeymap(kb):
-    from keyAssignations import assignKeys
-    kb.keymap = assignKeys()
+def assignKeymap(kb,bleEnabled :bool):
+    if bleEnabled:       
+        from keyAssignations import assignKeys
+        kb.keymap = assignKeys()
+    else:
+        from keyAssignationsBLE import assignKeys
+        kb.keymap = assignKeys()
+        
     
 if __name__ == '__main__':
     keyboard = None
@@ -129,7 +126,6 @@ if __name__ == '__main__':
     else:
         keyboard = initKBUSB()
         
-    
     keyboard.coord_mapping = [
         0,  1,  2,  3,  4,  5, 
         24, 25, 26, 27, 28, 29,                          
@@ -140,6 +136,6 @@ if __name__ == '__main__':
         18, 19, 20, 21, 22, 23,
         42, 43, 44, 45, 46, 47,
     ]
-    assignKeymap(keyboard)
+    assignKeymap(keyboard,bleEnabled)
     keyboard.debug_enabled = testing
     keyboard.go()

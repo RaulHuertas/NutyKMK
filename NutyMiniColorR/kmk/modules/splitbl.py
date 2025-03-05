@@ -26,7 +26,7 @@ class SplitBL(Module):
         split_side=None,
         split_role=None,
         uart_interval=20,
-        common_name="nutymini",
+        common_name="nllink",
         debug_enabled=False,
     ):
         self._is_target = True
@@ -78,10 +78,7 @@ class SplitBL(Module):
 
     def after_matrix_scan(self, keyboard):
         if keyboard.matrix_update:
-            if not self._is_target :
-                self._send_uart(keyboard.matrix_update)
-            else:
-                pass  # explicit pass just for dev sanity..
+            self._send_uart(keyboard.matrix_update)
             
 
         return
