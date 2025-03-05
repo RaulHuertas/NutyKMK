@@ -19,7 +19,6 @@ KeyBufferFrame = namedtuple(
     'KeyBufferFrame', ('key', 'is_pressed', 'int_coord', 'index')
 )
 
-
 def debug_error(module, message: str, error: Exception):
     if debug.enabled:
         debug(
@@ -31,7 +30,6 @@ class Sandbox:
     matrix_update = None
     secondary_matrix_update = None
     active_layers = None
-
 
 class USBKB:
     #####
@@ -397,8 +395,6 @@ class USBKB:
                 ext.after_hid_send(self.sandbox)
             except Exception as err:
                 debug_error(ext, 'after_hid_send', err)
-
-   
 
     def deinit(self) -> None:
         for module in self.modules:

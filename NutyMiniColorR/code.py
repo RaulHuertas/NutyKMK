@@ -43,7 +43,7 @@ def isItOn(cols, rows, keyIndex):
 row_pins = (board.D4, board.D3, board.D2, board.D1)
 col_pins = ( board.D5, board.D6,board.D7, board.D8,board.D9,board.D10,)
 bleSelectButton = 18
-testing = True
+testing = False
 
 def initKBUSB():
     from nkbusb import NKB_USB, USBFeedback
@@ -105,14 +105,13 @@ def initKBBLE():
     power = Power()
     from kmk.modules.holdtap import HoldTap
     from kmk.modules.mouse_keys import MouseKeys
-    from kmk.extensions.media_keys import MediaKeys
-    #from kmk.modules.midi import MidiKeys   
+    
     keyboard.modules = [
         split,
         power,
         HoldTap(),
         MouseKeys(),
-        BLEFeedback(),
+        BLEFeedback()
     ]         
     return keyboard            
 

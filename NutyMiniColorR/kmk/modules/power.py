@@ -11,7 +11,7 @@ from kmk.modules import Module
 
 class Power(Module):
     def __init__(self, powersave_pin=None):
-        self.enable = False
+        self.enable = True
         self.powersave_pin = powersave_pin  # Powersave pin board object
         self._powersave_start = ticks_ms()
         self._usb_last_scan = ticks_ms() - 5000
@@ -19,10 +19,7 @@ class Power(Module):
         self._loopcounter = 0
         self._scanCounter = 0
 
-        make_key(names=('PS_TOG',), on_press=self._ps_tog)
-        make_key(names=('PS_ON',), on_press=self._ps_enable)
-        make_key(names=('PS_OFF',), on_press=self._ps_disable)
-
+     
     def __repr__(self):
         return f'Power({self._to_dict()})'
 
@@ -74,15 +71,6 @@ class Power(Module):
             return
         self._scanCounter = 0
 
-        if self._i2c_deinit_count >= self._i2c and self.powersave_pin:
-            # Allows power save to prevent RGB drain.
-            # Example here https://docs.nicekeyboards.com/#/nice!nano/pinout_schematic
-
-            if not self._psp:
-                self._psp = digitalio.DigitalInOut(self.powersave_pin)
-                self._psp.direction = digitalio.Direction.OUTPUT
-            if self._psp:
-                self._psp.value = True
 
         self.enable = True
         keyboard._trigger_powersave_enable = False
@@ -104,11 +92,10 @@ class Power(Module):
         Sleeps longer and longer to save power the more time in between updates.
         '''
         if check_deadline(ticks_ms(), self._powersave_start, 2000):            
-            sleep(1 / 1000)
+            pass
         elif check_deadline(ticks_ms(), self._powersave_start, 15000):
-            sleep(5 / 1000)
+            sleep(3 / 1000)
         else:
-        #elif check_deadline(ticks_ms(), self._powersave_start, 60000) :
             sleep(180 / 1000)
         return
 

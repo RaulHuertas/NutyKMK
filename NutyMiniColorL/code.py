@@ -2,7 +2,7 @@
 print("Starting on LEFT")
 
 import board
-testing  = True
+testing = False
 
 
 def isItOn(cols, rows, keyIndex):
@@ -112,11 +112,12 @@ if resetBondsTestA and resetBondsTestB:
 print("BLE ENABLED", bleEnabled)
 def assignKeymap(kb,bleEnabled :bool):
     if bleEnabled:       
-        from keyAssignations import assignKeys
-        kb.keymap = assignKeys()
-    else:
         from keyAssignationsBLE import assignKeys
         kb.keymap = assignKeys()
+    else:
+        from keyAssignations import assignKeys
+        kb.keymap = assignKeys()
+        
         
     
 if __name__ == '__main__':

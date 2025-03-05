@@ -8,9 +8,7 @@ WHITE = (255, 255, 255)
 YELLOW = (128, 128, 0)
 import time
 
-
-
-testing  = True
+testing  = False
 
 def isItOn(cols, rows, keyIndex):
     nCol = len(cols)
