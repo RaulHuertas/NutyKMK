@@ -77,24 +77,11 @@ def initKBUSB():
 
 def initKBBLE():
     from nkble import BLEFeedback
-    from kmk.kbble import KMKBLEKeyboard
     from kmk.scanners import DiodeOrientation
-    from kmk.scanners.keypad import MatrixScanner
+    from nkble import NKB_BLE
     global row_pins, col_pins
     diode_orientation = DiodeOrientation.ROW2COL
-    class MyKeyboard(KMKBLEKeyboard):
-        def __init__(self, col_pins, row_pins):   
-            # create and register the scanner
-            self.matrix = MatrixScanner(
-                # required arguments:
-                column_pins=col_pins,
-                row_pins=row_pins,
-                # optional arguments with defaults:
-                columns_to_anodes=diode_orientation,
-                interval=0.020,  # Debounce time in floating point seconds
-                max_events=2
-            )
-    keyboard = MyKeyboard(col_pins, row_pins)    
+    keyboard = NKB_BLE(col_pins, row_pins,diode_orientation)
     from kmk.modules.splitbl import SplitBL, SplitSide, SplitRole
     split = SplitBL(
         split_side=SplitSide.RIGHT,

@@ -28,7 +28,7 @@ class NKB_BLE(KMKBLEKeyboard):
         import digitalio
         chargeFastPin = digitalio.DigitalInOut(board.CHARGE_RATE)
         chargeFastPin.direction = digitalio.Direction.OUTPUT
-        chargeFastPin.value = False
+        chargeFastPin.value = False 
 
 class BLEFeedback(Layers):
 

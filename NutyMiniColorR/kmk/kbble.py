@@ -332,14 +332,12 @@ class KMKBLEKeyboard:
         if debug.enabled:
             debug('modules=', [_.__class__.__name__ for _ in self.modules])
 
-
     def before_matrix_scan(self) -> None:
         for module in self.modules:
             #try:
                 module.before_matrix_scan(self)
             #except Exception as err:
             #    debug_error(module, 'before_matrix_scan', err)
-
 
     def after_matrix_scan(self) -> None:
         for module in self.modules:

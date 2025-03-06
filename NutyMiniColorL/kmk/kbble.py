@@ -6,7 +6,7 @@ except ImportError:
 from collections import namedtuple
 from keypad import Event as KeyEvent
 
-from kmk.blehid import  BLEHID
+
 from kmk.keys import KC, Key
 from kmk.modules import Module
 from kmk.scanners.keypad import MatrixScanner
@@ -283,8 +283,8 @@ class KMKBLEKeyboard:
             self.coord_mapping = tuple(cm)
 
     def _init_hid(self) -> None:
-
-        self._hid_helper = BLEHID
+        from kmk.blehid import  AbstractHID
+        self._hid_helper = AbstractHID
         self._hid_helper = self._hid_helper(**self._go_args)
         self._hid_send_enabled = True
 

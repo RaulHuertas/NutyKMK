@@ -1,17 +1,34 @@
-from kmk.usbkb import  USBKB
 
 from kmk.scanners.keypad import MatrixScanner
-from kmk.scanners import DiodeOrientation
 from kmk.modules.layers import Layers
-
-from time import monotonic, sleep
+from time import monotonic
 from math import modf
+from kmk.kbble import KMKBLEKeyboard
 from kmk.keys import ConsumerKey, make_key
 from kmk.keys import KeyboardKey, make_key
 from microcontroller import nvm
 
 import pwmio
 import board
+
+class NKB_BLE(KMKBLEKeyboard):
+    def __init__(self, col_pins, row_pins, diode_orientation):   
+        # create and register the scanner
+        self.matrix = MatrixScanner(
+            # required arguments:
+            column_pins=col_pins,
+            row_pins=row_pins,
+            # optional arguments with defaults:
+            columns_to_anodes=diode_orientation,
+            interval=0.020,  # Debounce time in floating point seconds
+            max_events=2
+        )
+        import digitalio
+        self.chargeFastPin = digitalio.DigitalInOut(board.CHARGE_RATE)
+        self.chargeFastPin.direction = digitalio.Direction.OUTPUT
+        self.chargeFastPin.value = False
+
+    
  
 class BLEFeedback(Layers):
 
