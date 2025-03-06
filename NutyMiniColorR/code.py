@@ -43,7 +43,7 @@ def isItOn(cols, rows, keyIndex):
 row_pins = (board.D4, board.D3, board.D2, board.D1)
 col_pins = ( board.D5, board.D6,board.D7, board.D8,board.D9,board.D10,)
 bleSelectButton = 18
-testing = False
+testing = True
 
 def initKBUSB():
     from nkbusb import NKB_USB, USBFeedback
@@ -51,7 +51,7 @@ def initKBUSB():
             
     split = SplitUART(
         split_side=SplitSide.RIGHT,
-        split_target_left=True,
+        split_target_left=False,
         data_pin = board.NFC2,#RX
         data_pin2 = board.NFC1,#TX
         debug_enabled = testing
@@ -100,6 +100,7 @@ def initKBBLE():
         MouseKeys(),
         BLEFeedback()
     ]         
+    
     return keyboard            
 
 def assignKeymap(kb):

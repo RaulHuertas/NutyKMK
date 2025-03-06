@@ -1,4 +1,4 @@
-from kmk.usbkb import  USBKB
+from kmk.kbusb import  KMKKeyboard
 
 from kmk.scanners.keypad import MatrixScanner
 from kmk.scanners import DiodeOrientation
@@ -45,8 +45,8 @@ def lightShow(strip, nPixels, stageTime=0.15, nStages =10):
         strip.show()
         sleep(stageTime)
     
-class NKB_USB(USBKB):
-    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.COL2ROW):   
+class NKB_USB(KMKKeyboard):
+    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.ROW2COL):
         # create and register the scanner
         self.matrix = MatrixScanner(
             # required arguments:
@@ -74,12 +74,8 @@ class USBFeedback(Layers):
         #print("self.effect:",self.effect)
 
     def saveNVM(self):
-        #print("start save")
-        #print(dir(self.nvm))
         toStore = self.brightnessStep.to_bytes(1,'little')+self.effect.to_bytes(1,'little')+self.speed.to_bytes(1,'little')
         nvm[0:3] =    toStore     #self.nvm.__setitem__(0,self.brightnessStep)
-        #self.nvm.__setitem__(1,self.effect)
-        #print("end save")
 
         #self.nvm[0] = self.brightnessStep
         #self.nvm[1] = self.effect   
