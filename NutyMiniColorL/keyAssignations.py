@@ -19,6 +19,7 @@ def assignKeys ():
     lShift = kc.LSHIFT
     layer1 = kc.FD(1)
     layer2 = kc.FD(2)
+    layer3 = kc.FD(3)
     esc = kc.ESCAPE
 
     layer0Asignations = [ noAsg]*48
@@ -67,8 +68,8 @@ def assignKeys ():
     layer0Asignations[36] =  kc.LALT # kc.TD( kc.BSPACE, kc.DELETE, tap_time=tapTime)
     layer0Asignations[37] =  space
     layer0Asignations[38] =  kc.MO(1)
-    layer0Asignations[39] =  layer2
-    layer0Asignations[40] =  kc.AUDIO_MUTE
+    layer0Asignations[39] =  noAsg
+    layer0Asignations[40] =  noAsg
     layer0Asignations[41] =  noAsg
 
     layer0Asignations[42] =  noAsg
@@ -127,8 +128,8 @@ def assignKeys ():
     layer1Asignations[36] =  kc.LALT
     layer1Asignations[37] =  space
     layer1Asignations[38] =  goHome
-    layer1Asignations[39] =  layer2
-    layer1Asignations[40] =  kc.MEDIA_PLAY_PAUSE
+    layer1Asignations[39] =  noAsg
+    layer1Asignations[40] =  noAsg
     layer1Asignations[41] =  noAsg
 
     layer1Asignations[42] =  noAsg
@@ -182,13 +183,13 @@ def assignKeys ():
     layer2Asignations[32] =  kc.F6
     layer2Asignations[33] =  kc.F7
     layer2Asignations[34] =  kc.F8
-    layer2Asignations[35] =  layer2
+    layer2Asignations[35] =  layer3
     #ROW3
     layer2Asignations[36] =  kc.LALT
     layer2Asignations[37] =  kc.SPACE
     layer2Asignations[38] =  goHome
-    layer2Asignations[39] =  layer2
-    layer2Asignations[40] =  kc.MB_MMB
+    layer2Asignations[39] =  noAsg
+    layer2Asignations[40] =  noAsg
     layer2Asignations[41] =  noAsg
 
     layer2Asignations[42] =  noAsg
@@ -198,9 +199,17 @@ def assignKeys ():
     layer2Asignations[46] =  kc.ENTER
     layer2Asignations[47] =  esc
 
+    
+    
+    layer3Asignations = [ noAsg]*48
+    layer3Asignations[35] =  noAsg
+    layer3Asignations[38] =  goHome
+
+
     return  [
         layer0Asignations,#base
         layer1Asignations,#nums and symbols
-        layer2Asignations
+        layer2Asignations,
+        layer3Asignations
     ]
 

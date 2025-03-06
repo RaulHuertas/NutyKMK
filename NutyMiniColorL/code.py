@@ -54,7 +54,7 @@ def initKBUSB():
     keyboard = NKB_USB(col_pins, row_pins)
     split = SplitUART(
             split_side=SplitSide.LEFT,
-            split_target_left=True,
+            split_target_left=False,
             data_pin = board.NFC1,#RX
             data_pin2 = board.NFC2,#TX
             debug_enabled = testing

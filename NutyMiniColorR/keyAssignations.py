@@ -19,6 +19,7 @@ def assignKeys ():
     lShift = kc.LSHIFT
     layer1 = kc.FD(1)
     layer2 = kc.FD(2)
+    layer3 = kc.FD(3)
     esc = kc.ESCAPE
 
     layer0Asignations = [ noAsg]*48
@@ -148,25 +149,25 @@ def assignKeys ():
     layer2Asignations[4] =  noAsg
     layer2Asignations[5] =  noAsg
 
-    layer2Asignations[6] =  kc.MB_MMB
-    layer2Asignations[7] =  kc.MB_LMB
-    layer2Asignations[8] =  kc.MB_RMB
-    layer2Asignations[9] =  noAsg
-    layer2Asignations[10] =  noAsg
+    layer2Asignations[6] =  kc.AUDIO_MUTE
+    layer2Asignations[7] =  kc.MEDIA_PLAY_PAUSE
+    layer2Asignations[8] =  kc.MB_LMB
+    layer2Asignations[9] =  kc.MB_RMB
+    layer2Asignations[10] =  kc.MB_MMB
     layer2Asignations[11] =   noAsg
     #ROW1
     layer2Asignations[12] =  lShift
     layer2Asignations[13] =  kc.DELETE
     layer2Asignations[14] =  kc.END
     layer2Asignations[15] =  kc.PGDOWN
-    layer2Asignations[16] =  kc.MB_LMB
-    layer2Asignations[17] =  kc.MB_RMB
+    layer2Asignations[16] =  noAsg
+    layer2Asignations[17] =  noAsg
 
     layer2Asignations[18] =  kc.MS_LT
     layer2Asignations[19] =  kc.MS_DN
     layer2Asignations[20] =  kc.MS_UP
     layer2Asignations[21] =  kc.MS_RT
-    layer2Asignations[22] =  kc.F1
+    layer2Asignations[22] =  kc.MW_UP
     layer2Asignations[23] =   noAsg
     
     #ROW2
@@ -177,30 +178,51 @@ def assignKeys ():
     layer2Asignations[28] = kc.LIGHTS_MORE_SPEED
     layer2Asignations[29] = kc.LIGHTS_RESET
 
-    layer2Asignations[30] =  kc.F3
-    layer2Asignations[31] =  kc.F4
-    layer2Asignations[32] =  kc.F6
-    layer2Asignations[33] =  kc.F7
-    layer2Asignations[34] =  kc.F8
-    layer2Asignations[35] =  layer2
+    layer2Asignations[30] =  noAsg
+    layer2Asignations[31] =  noAsg
+    layer2Asignations[32] =  kc.MW_LEFT
+    layer2Asignations[33] =  kc.MW_RIGHT
+    layer2Asignations[34] =  kc.MW_DOWN
+    layer2Asignations[35] =  layer3
     #ROW3
     layer2Asignations[36] =  kc.LALT
     layer2Asignations[37] =  kc.SPACE
     layer2Asignations[38] =  goHome
-    layer2Asignations[39] =  layer2
-    layer2Asignations[40] =  kc.MB_MMB
+    layer2Asignations[39] =  noAsg
+    layer2Asignations[40] =  noAsg
     layer2Asignations[41] =  noAsg
 
     layer2Asignations[42] =  noAsg
-    layer2Asignations[43] =  kc.MW_DOWN
+    layer2Asignations[43] =  noAsg
     layer2Asignations[44] =  kc.MW_UP
     layer2Asignations[45] =  kc.LGUI
     layer2Asignations[46] =  kc.ENTER
     layer2Asignations[47] =  esc
 
+
+    layer3Asignations = [ noAsg]*48
+    layer3Asignations[6] =  kc.F6
+    layer3Asignations[7] =  kc.F7
+    layer3Asignations[8] =  kc.F8
+    layer3Asignations[9] =  kc.F9
+    layer3Asignations[10] =  kc.F10
+    layer3Asignations[15] =  kc.F11
+    layer3Asignations[16] =  kc.F12
+    layer3Asignations[30] =  kc.F1
+    layer3Asignations[31] =  kc.F2
+    layer3Asignations[32] =  kc.F3
+    layer3Asignations[33] =  kc.F4
+    layer3Asignations[34] =  kc.F5
+    
+
+    layer3Asignations[35] =  noAsg
+    layer3Asignations[38] =  goHome
+    
     return  [
         layer0Asignations,#base
         layer1Asignations,#nums and symbols
-        layer2Asignations
+        layer2Asignations,
+        layer3Asignations
+
     ]
 
