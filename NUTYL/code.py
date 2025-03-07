@@ -85,12 +85,9 @@ def initKB():
                 powersave_dim_target=0.1, # set level for brightness decrease
                 powersave_off_time=12, # time in seconds to turn off screen
             )
-
-            keyboard.extensions.append(display)
             from kmk.modules.layers import Layers
-            keyboard.modules.append([
-                Layers()
-            ])
+            keyboard.extensions.append(display)
+            keyboard.modules.append(Layers())
         else:
             from nkbble import BLEFeedback
             lightsFeedBack = BLEFeedback( )
