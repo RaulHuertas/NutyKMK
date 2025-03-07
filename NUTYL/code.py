@@ -59,34 +59,43 @@ def initKB():
     if bleEnabled:
         from nkbble import NKB_BLE           
         keyboard = NKB_BLE(col_pins, row_pins)
-        from kmk.extensions.display import Display
-        from kmk.extensions.display.ssd1306 import SSD1306
-        import busio
-        i2c_bus = busio.I2C(board.D9, board.D10)
-        driver = SSD1306(
-            i2c=i2c_bus,
-            width=32,
-            height=128,
-            rotation=270
-        )
-        #driver.root_group = None
-        display = Display(
-            display=driver,
-            brightness=0.4, # initial screen brightness level
-            brightness_step=0.1, # used for brightness increase/decrease keycodes
-            dim_time=5.0, # time in seconds to reduce screen brightness
-            dim_target=0.03, # set level for brightness decrease
-            off_time=15, # time in seconds to turn off screen
-            powersave_dim_time=10, # time in seconds to reduce screen brightness
-            powersave_dim_target=0.1, # set level for brightness decrease
-            powersave_off_time=12, # time in seconds to turn off screen
-        )
+        import os
+        
+        oled = os.getenv("NLOLED")!=0
+        if oled:
+            from kmk.extensions.display import Display
+            from kmk.extensions.display.ssd1306 import SSD1306
+            import busio
+            i2c_bus = busio.I2C(board.D9, board.D10)
+            driver = SSD1306(
+                i2c=i2c_bus,
+                width=32,
+                height=128,
+                rotation=270
+            )
+            #driver.root_group = None
+            display = Display(
+                display=driver,
+                brightness=0.4, # initial screen brightness level
+                brightness_step=0.1, # used for brightness increase/decrease keycodes
+                dim_time=5.0, # time in seconds to reduce screen brightness
+                dim_target=0.03, # set level for brightness decrease
+                off_time=15, # time in seconds to turn off screen
+                powersave_dim_time=10, # time in seconds to reduce screen brightness
+                powersave_dim_target=0.1, # set level for brightness decrease
+                powersave_off_time=12, # time in seconds to turn off screen
+            )
 
-        keyboard.extensions.append(display)
-        from kmk.modules.layers import Layers
-        keyboard.modules.append([
-            Layers()
-        ])
+            keyboard.extensions.append(display)
+            from kmk.modules.layers import Layers
+            keyboard.modules.append([
+                Layers()
+            ])
+        else:
+            from nkbble import BLEFeedback
+            lightsFeedBack = BLEFeedback( )
+            keyboard.modules.append(lightsFeedBack) 
+        
 
     else:
         from kmk.kbusb import KMKKeyboard
@@ -145,12 +154,8 @@ def initKB():
         #lightsFeedBack = BLEFeedback(board.D0, 0.03 )
         from kmk.modules.power import Power
         power = Power()
-        keyboard.modules = [
-            split, 
-            #mouseKeys,
-            #lightsFeedBack, 
-            power
-        ]
+        keyboard.modules.append(split)
+        keyboard.modules.append(power)
         from keyAssignationsBLE import assignKeys
         keyboard.keymap = assignKeys()
     else:

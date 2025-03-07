@@ -87,10 +87,10 @@ class Power(Module):
             #sleep(0 / 1000)
             pass
         elif check_deadline(ticks_ms(), self._powersave_start, 15000):
-            sleep(5 / 1000)
+            sleep(3 / 1000)
         else:
         # elif check_deadline(ticks_ms(), self._powersave_start, 60000) :
-            sleep(380 / 1000)
+            sleep(300 / 1000)
         return
 
     def psave_time_reset(self):

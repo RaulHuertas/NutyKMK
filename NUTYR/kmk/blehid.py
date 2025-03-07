@@ -347,6 +347,8 @@ class BLEHID(AbstractHID):
             advertisement.appearance = self.BLE_APPEARANCE_HID_KEYBOARD
             self.ble.start_advertising(advertisement,timeout=5)
             self.advertingStartTime = time.monotonic()
+            #time.sleep(5.4)
+            #self.stop_advertising()
 
     def stop_advertising(self):
         print("hid stop_advertising")

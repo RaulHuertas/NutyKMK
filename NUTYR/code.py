@@ -8,7 +8,9 @@ WHITE = (255, 255, 255)
 YELLOW = (128, 128, 0)
 import time
 
-testing  = False
+
+
+testing  = True
 
 def isItOn(cols, rows, keyIndex):
     nCol = len(cols)
@@ -218,10 +220,12 @@ def initKB():
         def updateLights(self):
             
             nowT = monotonic()
+            if ((nowT-self.ledAnimTime)<0.050):
+                return
             #blink pulse             
             pulsePosition = (nowT)/2.0 #blink period
             pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
-            pulseHighPosition = (nowT)/0.4 #blink period
+            pulseHighPosition = (nowT)/0.350 #blink period
             pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
             #wpmHigh
             if((nowT-self.startTime)>1):#update wmpHigh
@@ -237,9 +241,6 @@ def initKB():
             ######LEDS status######
             #######################
 
-            if ((nowT-self.ledAnimTime)<0.050):
-                return
-            
             #####BOARD LEDS
             if not bleEnabled:
                 if self.wpmHigh :
@@ -253,6 +254,7 @@ def initKB():
             
             dtcyc = 60000
             dtcycOff = 65535
+            onLedValue = dtcyc if pulseHighOn else 65535
             if self.currentLayer == 0:
                 if not bleEnabled:
                     self.rgbStrip[1] = PURPLE
@@ -261,7 +263,7 @@ def initKB():
                     self.rgbStrip[4] = OFF
                     self.rgbStrip[5] = OFF
 
-                self.redLED.duty_cycle = dtcyc
+                self.redLED.duty_cycle = onLedValue
                 self.greenLED.duty_cycle = dtcycOff
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 1:
@@ -272,7 +274,7 @@ def initKB():
                     self.rgbStrip[4] = OFF
                     self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
-                self.greenLED.duty_cycle = dtcyc
+                self.greenLED.duty_cycle = onLedValue
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 2:
                 if not bleEnabled:
@@ -283,7 +285,7 @@ def initKB():
                     self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
                 self.greenLED.duty_cycle = dtcycOff
-                self.blueLED.duty_cycle = dtcyc
+                self.blueLED.duty_cycle = onLedValue
             elif self.currentLayer == 3:
                 if not bleEnabled:
                     self.rgbStrip[1] = PURPLE
@@ -292,8 +294,8 @@ def initKB():
                     self.rgbStrip[4] = PURPLE
                     self.rgbStrip[5] = OFF    
 
-                self.redLED.duty_cycle = dtcyc
-                self.greenLED.duty_cycle = dtcyc
+                self.redLED.duty_cycle = onLedValue
+                self.greenLED.duty_cycle = onLedValue
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 4:
                 if not bleEnabled:
@@ -302,9 +304,9 @@ def initKB():
                     self.rgbStrip[3] = PURPLE
                     self.rgbStrip[4] = PURPLE
                     self.rgbStrip[5] = PURPLE
-                self.redLED.duty_cycle = dtcyc
+                self.redLED.duty_cycle = onLedValue
                 self.greenLED.duty_cycle = dtcycOff
-                self.blueLED.duty_cycle = dtcyc
+                self.blueLED.duty_cycle = onLedValue
             
             if not bleEnabled:
                 self.rgbStrip.show()
