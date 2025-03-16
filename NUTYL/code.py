@@ -1,7 +1,7 @@
 
 print("Starting on NML")
 
-testing = True
+testing = False
 
 def isItOn(cols, rows, keyIndex):
     import time
@@ -95,19 +95,9 @@ def initKB():
         
 
     else:
-        from kmk.kbusb import KMKKeyboard
-        class MyKeyboard(KMKKeyboard):
-            def __init__(self, col_pins, row_pins):   
-                # create and register the scanner
-                self.matrix = MatrixScanner(
-                    # required arguments:
-                    column_pins=col_pins,
-                    row_pins=row_pins,
-                    # optional arguments with defaults:
-                    interval=0.020,  # Debounce time in floating point seconds
-                    max_events=4
-                )               
-        keyboard = MyKeyboard(col_pins, row_pins)
+        from nkbusb import NKB_USB
+        keyboard = NKB_USB(col_pins=col_pins, row_pins=row_pins)
+
         
     del board
     del col_pins
@@ -134,15 +124,25 @@ def initKB():
         )
     else:
         from kmk.modules.splituart import SplitUART, SplitSide
+        import board
         split = SplitUART(
             split_side=SplitSide.LEFT,
-            #split_side=None,
-            split_target_left=True,
+            split_target_left=False,
             data_pin = board.D9,#RX
-            data_pin2 = board.IMU_PWR,#TX
+            data_pin2 = board.D10,#TX
             debug_enabled = testing
         )
     
+    keyboard.coord_mapping =  [
+            0,  1,  2,  3,  4,  5, 
+            24, 25, 26, 27, 28, 29,
+            6,  7,  8,  9, 10, 11,
+            30, 31, 32, 33, 34, 35,
+            12, 13, 14, 15, 16, 17,
+            36, 37, 38, 39, 40, 41,
+            18, 19, 20, 21, 22, 23 ,
+            42, 43, 44, 45, 46, 47,
+    ]
 
     if bleEnabled:
         #from kmk.modules.mouse_keys import MouseKeys 
@@ -156,15 +156,11 @@ def initKB():
         from keyAssignationsBLE import assignKeys
         keyboard.keymap = assignKeys()
     else:
-        from kmk.modules.mouse_keys import MouseKeys         
-        from kmk.modules.midi import MidiKeys
         from nkbusb import USBFeedback
-        lightsFeedBack = USBFeedback(board.D0, 0.03 )
+        lightsFeedBack = USBFeedback(board.D0,nLeds=6,brightness= 0.03 )
         keyboard.modules = [
             split, 
-            MouseKeys(),
             lightsFeedBack, 
-            MidiKeys()
         ]
         
         from keyAssignations import assignKeys
@@ -172,16 +168,6 @@ def initKB():
 
         
 
-    keyboard.coord_mapping =  [
-            0,  1,  2,  3,  4,  5, 
-            24, 25, 26, 27, 28, 29,
-            6,  7,  8,  9, 10, 11,
-            30, 31, 32, 33, 34, 35,
-            12, 13, 14, 15, 16, 17,
-            36, 37, 38, 39, 40, 41,
-            18, 19, 20, 21, 22, 23 ,
-            42, 43, 44, 45, 46, 47,
-        ]
 
     
     import gc
@@ -197,7 +183,7 @@ if __name__ == '__main__':
 
     if bleEnabled:
         kb.powersave_enable = True
-        kb.go(False)
+        kb.go(isTarger=False)
     else:
         kb.go( )
 

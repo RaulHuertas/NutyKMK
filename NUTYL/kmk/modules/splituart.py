@@ -73,8 +73,6 @@ class SplitUART(Module):
                     baudrate=115200,
             )
 
-       
-
         if self.split_side == SplitSide.RIGHT:
             offset = self.split_offset
             for matrix in keyboard.matrix:
@@ -88,7 +86,9 @@ class SplitUART(Module):
 
     def after_matrix_scan(self, keyboard):
         if keyboard.matrix_update:
+            print("b")
             if not self._is_target or self.data_pin2:
+                print("c")
                 self._send_uart(keyboard.matrix_update)
             else:
                 pass  # explicit pass just for dev sanity..

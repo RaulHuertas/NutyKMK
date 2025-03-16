@@ -6,11 +6,12 @@ RED = (255, 0, 0)
 PURPLE = (180, 0, 255)
 WHITE = (255, 255, 255)
 YELLOW = (128, 128, 0)
+BLACK = (0, 0, 0)
 import time
 
 
 
-testing  = True
+testing  = False
 
 def isItOn(cols, rows, keyIndex):
     nCol = len(cols)
@@ -149,16 +150,14 @@ def initKB():
             
         split = SplitUART(
             split_side=SplitSide.RIGHT,
-            #split_type=SplitType.UART,
-            split_target_left=True,
+            split_target_left=False,
             data_pin = board.D5,#RX
             data_pin2 = board.D6,#TX
-            #uart_flip = False,
             debug_enabled = testing
         )
     
     class RGBLayers(Layers):
-        def __init__(self, pin, brightness=0.2):
+        def __init__(self, pin, nLeds=6,brightness=0.2):
             Layers.__init__(self)
             self.br =brightness
             if not bleEnabled:
@@ -166,6 +165,8 @@ def initKB():
                 self.rgbStrip =  NeoPixel(pin, 6,brightness=self.br , auto_write=False)      
             self.wpmC = 0
             self.wpmHigh = False
+            self.nLeds = nLeds
+            self.simpleLights = nLeds<=6 
             
             self.startTime = monotonic()
             
@@ -216,17 +217,26 @@ def initKB():
         def deactivate_layer(self, keyboard, layer):
             super().deactivate_layer(keyboard, layer)
             self.on_layer_change(keyboard.active_layers[0])
+            
+        def stripAnim(self):
+            if bleEnabled:
+                return
+            MAINCOLOR = RED
+            for pix in range(self.nLeds):
+                if pix<=self.currentLayer:                
+                    self.rgbStrip[pix] = MAINCOLOR if (not self.wpmHigh) else ( BLACK if self.pulseOn else MAINCOLOR)
+                else:
+                    self.rgbStrip[pix] = BLACK
 
         def updateLights(self):
-            
             nowT = monotonic()
             if ((nowT-self.ledAnimTime)<0.050):
                 return
             #blink pulse             
             pulsePosition = (nowT)/2.0 #blink period
-            pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
+            self.pulseOn = modf(pulsePosition)[0]>0.9 #off cycle
             pulseHighPosition = (nowT)/0.350 #blink period
-            pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
+            self.pulseHighOn = modf(pulseHighPosition)[0]>0.5 #off cycle
             #wpmHigh
             if((nowT-self.startTime)>1):#update wmpHigh
                 self.startTime = nowT
@@ -241,78 +251,36 @@ def initKB():
             ######LEDS status######
             #######################
 
-            #####BOARD LEDS
-            if not bleEnabled:
-                if self.wpmHigh :
-                    if pulseHighOn:
-                        self.rgbStrip[0] = GREEN
-                    else:
-                        self.rgbStrip[0] = ORANGE
-                else:
-                    self.rgbStrip[0] = BLUE
-
             
             dtcyc = 60000
             dtcycOff = 65535
-            onLedValue = dtcyc if pulseHighOn else 65535
-            if self.currentLayer == 0:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = OFF
-                    self.rgbStrip[3] = OFF
-                    self.rgbStrip[4] = OFF
-                    self.rgbStrip[5] = OFF
+            onLedValue = dtcyc #if self.pulseHighOn else 65535
 
+            if self.currentLayer == 0:
                 self.redLED.duty_cycle = onLedValue
                 self.greenLED.duty_cycle = dtcycOff
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 1:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = PURPLE 
-                    self.rgbStrip[3] = OFF
-                    self.rgbStrip[4] = OFF
-                    self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
                 self.greenLED.duty_cycle = onLedValue
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 2:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = PURPLE
-                    self.rgbStrip[3] = PURPLE
-                    self.rgbStrip[4] = OFF
-                    self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
                 self.greenLED.duty_cycle = dtcycOff
                 self.blueLED.duty_cycle = onLedValue
             elif self.currentLayer == 3:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = PURPLE
-                    self.rgbStrip[3] = PURPLE
-                    self.rgbStrip[4] = PURPLE
-                    self.rgbStrip[5] = OFF    
-
                 self.redLED.duty_cycle = onLedValue
                 self.greenLED.duty_cycle = onLedValue
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 4:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = PURPLE
-                    self.rgbStrip[3] = PURPLE
-                    self.rgbStrip[4] = PURPLE
-                    self.rgbStrip[5] = PURPLE
                 self.redLED.duty_cycle = onLedValue
                 self.greenLED.duty_cycle = dtcycOff
                 self.blueLED.duty_cycle = onLedValue
             
             if not bleEnabled:
+                self.stripAnim()
                 self.rgbStrip.show()
-
-
-
+            
             self.ledAnimTime = nowT
 
         def before_matrix_scan(self, sandbox):
@@ -333,15 +301,9 @@ def initKB():
             nowT = monotonic()
             self.currentLayer = layer
             self.updateLights()
-            
-            
-
- 
-
     
-    from kmk.extensions.media_keys import MediaKeys 
-    #mouseKeys = MouseKeys()
-    rgbLayers = RGBLayers(board.D0, 0.03 )
+
+    lightsFeedback = RGBLayers(pin=board.D0, nLeds=6, brightness=0.03)
 
     if bleEnabled:
         
@@ -350,16 +312,18 @@ def initKB():
         keyboard.modules = [
             split, 
             #mouseKeys,
-            rgbLayers,
+            lightsFeedback,
             power
         ]
     else:
         from kmk.modules.midi import MidiKeys
-
+        from kmk.modules.mouse_keys import MouseKeys
+        #from kmk.extensions.media_keys import MediaKeys 
+        #from nkbusb import USBFeedback
         keyboard.modules = [
             split, 
-            #mouseKeys,
-            rgbLayers,
+            MouseKeys(),
+            lightsFeedback,
             MidiKeys()
         ]
     
