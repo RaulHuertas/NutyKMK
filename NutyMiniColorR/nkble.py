@@ -28,8 +28,6 @@ class NKB_BLE(KMKBLEKeyboard):
         self.chargeFastPin.direction = digitalio.Direction.OUTPUT
         self.chargeFastPin.value = False
 
-    
- 
 class BLEFeedback(Layers):
 
     def __init__(self):
@@ -134,14 +132,9 @@ class BLEFeedback(Layers):
             else:
                 self.wpmHigh = False
             self.resetWPM()
-
         #######################
         ######LEDS status######
         #######################
-        
-
-            
-        
         dtcyc = 50000
         dtcycOff = 65535
         onLedValue= dtcyc if pulseHighOn else 65535
@@ -166,8 +159,6 @@ class BLEFeedback(Layers):
             self.greenLED.duty_cycle = dtcycOff
             self.blueLED.duty_cycle = onLedValue
 
-        
-
     def before_matrix_scan(self, sandbox):
         super().before_matrix_scan(sandbox)
         self.updateLights()
@@ -179,6 +170,7 @@ class BLEFeedback(Layers):
         super().before_hid_send(keyboard)
         if keyboard.hid_pending:
             self.incrWPM(1)     
+
     def after_hid_send(self, keyboard):
         super().after_hid_send(keyboard)
 

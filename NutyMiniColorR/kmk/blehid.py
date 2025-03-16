@@ -14,27 +14,21 @@ import time
 
 debug = Debug(__name__)
 
-
 class HIDModes:
     NOOP = 0  # currently unused; for testing?
     BLE = 2
-
     ALL_MODES = (NOOP, BLE)
-
 
 class HIDReportTypes:
     KEYBOARD = 1
     MOUSE = 2
     CONSUMER = 3
     SYSCONTROL = 4
-
-
 class HIDUsage:
     KEYBOARD = 0x06
     MOUSE = 0x02
     CONSUMER = 0x01
     SYSCONTROL = 0x80
-
 
 class HIDUsagePage:
     CONSUMER = 0x0C
@@ -47,7 +41,6 @@ HID_REPORT_SIZES = {
     HIDReportTypes.CONSUMER: 2,
     HIDReportTypes.SYSCONTROL: 8,  # TODO find the correct value for this
 }
-
 
 class AbstractHID:
     REPORT_BYTES = 8
@@ -247,8 +240,6 @@ class AbstractHID:
                 return bool(part & (1 << (key.code & 0x07)))
         return False
 
-
-
 class BLEHID(AbstractHID):
     BLE_APPEARANCE_HID_KEYBOARD = const(961)
     # Hardcoded in CPy
@@ -336,11 +327,10 @@ class BLEHID(AbstractHID):
         
         return ret
         
-
     def start_advertising(self):
-        #print("hid start_advertising 1")
-        #print("self.ble.advertising",self.ble.advertising)
-        #print("self.isPaired: ",self.isPaired())
+        print("hid start_advertising 1")
+        print("self.ble.advertising",self.ble.advertising)
+        print("self.isPaired: ",self.isPaired())
         if not self.ble.advertising and not self.isPaired():
             print("hid start_advertising 2")
             advertisement = ProvideServicesAdvertisement(self.hid)

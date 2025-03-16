@@ -19,19 +19,16 @@ KeyBufferFrame = namedtuple(
     'KeyBufferFrame', ('key', 'is_pressed', 'int_coord', 'index')
 )
 
-
 def debug_error(module, message: str, error: Exception):
     if debug.enabled:
         debug(
             message, ': ', error.__class__.__name__, ': ', error, name=module.__module__
         )
 
-
 class Sandbox:
     matrix_update = None
     secondary_matrix_update = None
     active_layers = None
-
 
 class KMKBLEKeyboard:
     #####
@@ -361,8 +358,6 @@ class KMKBLEKeyboard:
                 module.after_hid_send(self)
             except Exception as err:
                 debug_error(module, 'after_hid_send', err)
-
-
 
     def deinit(self) -> None:
         for module in self.modules:

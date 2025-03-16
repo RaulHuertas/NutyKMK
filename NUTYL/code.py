@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     if bleEnabled:
         kb.powersave_enable = True
-        kb.go(isTarger=False)
+        kb.go(isTarget=False)
     else:
         kb.go( )
 

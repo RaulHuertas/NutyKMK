@@ -184,7 +184,7 @@ class USBKB:
                 buffer, self._resume_buffer = self._resume_buffer, buffer
 
         self._resume_buffer_x = buffer
-    
+
     @property
     def debug_enabled(self) -> bool:
         return debug.enabled

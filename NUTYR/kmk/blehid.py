@@ -338,11 +338,11 @@ class BLEHID(AbstractHID):
         
 
     def start_advertising(self):
-        print("hid start_advertising 1")
-        print("self.ble.advertising",self.ble.advertising)
-        print("self.isPaired: ",self.isPaired())
+        #print("hid start_advertising 1")
+        #print("self.ble.advertising",self.ble.advertising)
+        #print("self.isPaired: ",self.isPaired())
         if not self.ble.advertising and not self.isPaired():
-            print("hid start_advertising 2")
+            #print("hid start_advertising 2")
             advertisement = ProvideServicesAdvertisement(self.hid)
             advertisement.appearance = self.BLE_APPEARANCE_HID_KEYBOARD
             self.ble.start_advertising(advertisement,timeout=5)
