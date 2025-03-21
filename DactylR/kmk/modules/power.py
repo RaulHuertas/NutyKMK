@@ -17,10 +17,8 @@ class Power(Module):
         self._usb_last_scan = ticks_ms() - 5000
         self._psp = None  # Powersave pin object
         self._loopcounter = 0
+        self._scanCounter = 0
 
-        make_key(names=('PS_TOG',), on_press=self._ps_tog)
-        make_key(names=('PS_ON',), on_press=self._ps_enable)
-        make_key(names=('PS_OFF',), on_press=self._ps_disable)
 
     def __repr__(self):
         return f'Power({self._to_dict()})'
@@ -43,13 +41,14 @@ class Power(Module):
     def after_matrix_scan(self, keyboard):
         if keyboard.matrix_update or keyboard.secondary_matrix_update:
             self.psave_time_reset()
+        else:
+            self.psleep()
 
     def before_hid_send(self, keyboard):
         return
 
     def after_hid_send(self, keyboard):
-        if self.enable:
-            self.psleep()
+        self.psleep()
 
     def on_powersave_enable(self, keyboard):
         '''Gives 10 cycles to allow other extensions to clean up before powersave'''
@@ -66,6 +65,12 @@ class Power(Module):
 
     def enable_powersave(self, keyboard):
         '''Enables power saving features'''
+        
+        self._scanCounter += 1
+        if(self._scanCounter<10):
+            return
+        self._scanCounter = 0
+
         if self._i2c_deinit_count >= self._i2c and self.powersave_pin:
             # Allows power save to prevent RGB drain.
             # Example here https://docs.nicekeyboards.com/#/nice!nano/pinout_schematic
@@ -95,9 +100,13 @@ class Power(Module):
         '''
         Sleeps longer and longer to save power the more time in between updates.
         '''
-        if check_deadline(ticks_ms(), self._powersave_start, 60000):
-            sleep(8 / 1000)
-        elif check_deadline(ticks_ms(), self._powersave_start, 240000) is False:
+        if check_deadline(ticks_ms(), self._powersave_start, 2000):            
+            #sleep(0 / 1000)
+            pass
+        elif check_deadline(ticks_ms(), self._powersave_start, 15000):
+            sleep(5 / 1000)
+        else:
+        #elif check_deadline(ticks_ms(), self._powersave_start, 60000) :
             sleep(180 / 1000)
         return
 

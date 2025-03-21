@@ -8,6 +8,7 @@ WHITE = (255, 255, 255)
 YELLOW = (128, 128, 0)
 import time
 
+testing = True
 def isItOn(cols, rows, keyIndex):
     nCol = len(cols)
     nRow = len(rows)
@@ -47,18 +48,13 @@ def isItOn(cols, rows, keyIndex):
 
     return not returnVal
 
-#while True:
-#    print("BLE enabled: ", isItOn(col_pins, row_pins, modeSelectButton))
-#    time.sleep(1)
-bleEnabled = False
+def restartBLE():
+    import _bleio
+    _bleio.adapter.erase_bonding()
+
 
 def initKB():
-    global bleEnabled
-    #from kmk.modules.mouse_keys import MouseKeys
-    #from kmk.modules.spUart import SplitUART, SplitSide
-    
-    from kmk.kmk_keyboard import KMKKeyboard
-
+    global testing 
     from kmk.scanners import DiodeOrientation
 
     from kmk.scanners.keypad import MatrixScanner
@@ -66,25 +62,26 @@ def initKB():
     from time import monotonic
     from math import modf
     from kmk.keys import ConsumerKey, make_key
-
     import board
     import pwmio
     col_pins = (board.D2, board.D3, board.D4,board.D5, board.D6, board.NFC1, )
     row_pins = (board.D10,board.D9,board.D8 ,board.D7,board.NFC2,)
     diode_orientation = DiodeOrientation.ROW2COL
-    class MyKeyboard(KMKKeyboard):
-        def __init__(self, col_pins, row_pins):   
-            # create and register the scanner
-            self.matrix = MatrixScanner(
-                # required arguments:
-                column_pins=col_pins,
-                row_pins=row_pins,
-                # optional arguments with defaults:
-                columns_to_anodes=diode_orientation,
-                interval=0.020,  # Debounce time in floating point seconds
-                max_events=2
-            )
-    keyboard = MyKeyboard(col_pins, row_pins)
+    
+    bleBondingTestA = isItOn(col_pins, row_pins, 5)
+    bleBondingTestB = isItOn(col_pins, row_pins, 17)
+    if bleBondingTestA and bleBondingTestB:
+        print("Rebonding ble...")
+        restartBLE()
+        
+    from nkble import NKB_BLE
+    keyboard = NKB_BLE(
+        row_pins=row_pins, 
+        col_pins=col_pins, 
+        diode_orientation=diode_orientation
+    )
+    
+    
 
 
     keyboard.coord_mapping =  [
@@ -99,25 +96,22 @@ def initKB():
         24, 25, 26, 27, 28, 29,
         54, 55, 56, 57, 58, 59,        
     ]
-    from kmk.modules.splituart import SplitUART, SplitSide
-        
-    split = SplitUART(
+
+    from kmk.modules.splitbl import SplitBL, SplitSide, SplitRole 
+    split = SplitBL(
         split_side=SplitSide.RIGHT,
-        #split_type=SplitType.UART,
-        split_target_left=False,
-        data_pin = board.D1,#RX
-        data_pin2 = board.IMU_PWR,#TX
-        #uart_flip = False,
-        debug_enabled = True
+        split_role=SplitRole.Primary,
+        debug_enabled=testing
     )
+
+    
     
     class RGBLayers(Layers):
-        def __init__(self, pin, brightness=0.2):
+        def __init__(self, pin, brightness=0.4):
             Layers.__init__(self)
             self.br =brightness
-            if not bleEnabled:
-                from neopixel import NeoPixel
-                self.rgbStrip =  NeoPixel(pin, 29,brightness=self.br , auto_write=False)      
+            from neopixel import NeoPixel
+            self.rgbStrip =  NeoPixel(pin, 29,brightness=self.br , auto_write=False)      
             self.wpmC = 0
             self.wpmHigh = False
             
@@ -204,75 +198,65 @@ def initKB():
                 return
             
             #####BOARD LEDS
-            if not bleEnabled:
-                if self.wpmHigh :
-                    if pulseHighOn:
-                        self.rgbStrip[0] = GREEN
-                    else:
-                        self.rgbStrip[0] = ORANGE
+            if self.wpmHigh :
+                if pulseHighOn:
+                    self.rgbStrip[0] = GREEN
                 else:
-                    self.rgbStrip[0] = BLUE
+                    self.rgbStrip[0] = ORANGE
+            else:
+                self.rgbStrip[0] = BLUE
 
             
             dtcyc = 30000
             dtcycOff = 65535
             if self.currentLayer == 0:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = OFF
-                    self.rgbStrip[3] = OFF
-                    self.rgbStrip[4] = OFF
-                    self.rgbStrip[5] = OFF
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = OFF
+                self.rgbStrip[3] = OFF
+                self.rgbStrip[4] = OFF
+                self.rgbStrip[5] = OFF
 
                 self.redLED.duty_cycle = dtcyc
                 self.greenLED.duty_cycle = dtcycOff
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 1:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = PURPLE 
-                    self.rgbStrip[3] = OFF
-                    self.rgbStrip[4] = OFF
-                    self.rgbStrip[5] = OFF
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = PURPLE 
+                self.rgbStrip[3] = OFF
+                self.rgbStrip[4] = OFF
+                self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
                 self.greenLED.duty_cycle = dtcyc
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 2:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = PURPLE
-                    self.rgbStrip[3] = PURPLE
-                    self.rgbStrip[4] = OFF
-                    self.rgbStrip[5] = OFF
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = OFF
+                self.rgbStrip[5] = OFF
                 self.redLED.duty_cycle = dtcycOff
                 self.greenLED.duty_cycle = dtcycOff
                 self.blueLED.duty_cycle = dtcyc
             elif self.currentLayer == 3:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = PURPLE
-                    self.rgbStrip[3] = PURPLE
-                    self.rgbStrip[4] = PURPLE
-                    self.rgbStrip[5] = OFF    
-
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = PURPLE
+                self.rgbStrip[5] = OFF    
                 self.redLED.duty_cycle = dtcyc
                 self.greenLED.duty_cycle = dtcyc
                 self.blueLED.duty_cycle = dtcycOff
             elif self.currentLayer == 4:
-                if not bleEnabled:
-                    self.rgbStrip[1] = PURPLE
-                    self.rgbStrip[2] = PURPLE
-                    self.rgbStrip[3] = PURPLE
-                    self.rgbStrip[4] = PURPLE
-                    self.rgbStrip[5] = PURPLE
+                self.rgbStrip[1] = PURPLE
+                self.rgbStrip[2] = PURPLE
+                self.rgbStrip[3] = PURPLE
+                self.rgbStrip[4] = PURPLE
+                self.rgbStrip[5] = PURPLE
                 self.redLED.duty_cycle = dtcyc
                 self.greenLED.duty_cycle = dtcycOff
                 self.blueLED.duty_cycle = dtcyc
             
-            if not bleEnabled:
                 self.rgbStrip.show()
-
-
 
             self.ledAnimTime = nowT
 
@@ -295,43 +279,25 @@ def initKB():
             self.currentLayer = layer
             self.updateLights()
            
-    from kmk.extensions.media_keys import MediaKeys 
-    #mouseKeys = MouseKeys()
-    rgbLayers = RGBLayers(board.D0, 0.03 )
+    rgbLayers = RGBLayers(board.D0, 0.05 )
 
-
-    from kmk.modules.midi import MidiKeys
-
+    from kmk.modules.power import Power
+    from kmk.modules.mouse_keys import MouseKeys
     keyboard.modules = [
         split, 
-        #mouseKeys,
         rgbLayers,
-        MidiKeys()
+        Power(),
+        MouseKeys()
     ]
 
-    del SplitUART
-    #del Split
-    del board
-    del Layers
-    del DiodeOrientation
-    del RGBLayers
-    del MatrixScanner
-    #del MouseKeys
-    #del MediaKeys
-    del col_pins
-    del row_pins
-    import gc
-    gc.collect()
-    print('mem_info used:', gc.mem_alloc(), ' free:', gc.mem_free())
-    from keyAssignations import assignKeys
-    keyboard.keymap = assignKeys()
-    del assignKeys
-    gc.collect()
     return keyboard
 
 if __name__ == '__main__':  
     
     kb = initKB()
+    from keyAssignations import assignKeys
+    kb.keymap = assignKeys()
+    del assignKeys
     
     kb.debug_enabled = True
     

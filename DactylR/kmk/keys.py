@@ -283,16 +283,9 @@ def maybe_make_shifted_key(candidate: str) -> Optional[Key]:
             return make_key(
                 names=names, constructor=ModifiedKey, code=code, modifier=KC.LSFT
             )
-def maybe_make_es_keys(candidate: str) -> Optional[Key]:
-    esChars = (
-                (100, ('LESSER_GREATER')),
-            )
 
-    for code, names in esChars:
-        return make_key(names=names, constructor=KeyboardKey, code=code)
+
 def maybe_make_international_key(candidate: str) -> Optional[Key]:
-
-
     codes = (
         (50, ('NONUS_HASH', 'NUHS')),
         (100, ('NONUS_BSLASH', 'NUBS')),
@@ -373,7 +366,6 @@ KEY_GENERATORS = (
     #maybe_make_shifted_key,
     # International
     maybe_make_international_key,
-    maybe_make_es_keys
 )
 
 

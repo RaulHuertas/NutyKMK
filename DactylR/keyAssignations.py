@@ -1,14 +1,10 @@
 from kmk.keys import KC
 
 def assignKeys ():
-    
-    
-   
-        
     kc = KC
     noAsg = kc.NO
     esc = kc.ESCAPE
-    #SPANISH UNITED STATES INTERNATIONAL
+    #SPANISH ISO LAYOUT
     comilla_simple = kc.MINUS 
     exclam_ap = kc.EQUAL 
     degrees = kc.GRAVE
@@ -67,7 +63,7 @@ def assignKeys ():
     layer0Asignations[32] = kc.K
     layer0Asignations[33] = kc.L
     layer0Asignations[34] = ntil
-    layer0Asignations[35] = tildeInvertida
+    layer0Asignations[35] = kc.RALT
 
     layer0Asignations[36] = kc.LCTRL
     layer0Asignations[37] = kc.Z
@@ -80,25 +76,30 @@ def assignKeys ():
     layer0Asignations[44] = kc.COMMA
     layer0Asignations[45] = kc.DOT
     layer0Asignations[46] = dash
-    layer0Asignations[47] = mas
+    layer0Asignations[47] = layer1 
 
 
     
-    layer0Asignations[48] =cCedilla 
-    layer0Asignations[49] = tilde
-    layer0Asignations[50] = kc.SPACE
-    layer0Asignations[51] = kc.RALT
-    layer0Asignations[52] = kc.LALT
-    layer0Asignations[53] = temporalLayer1        
-    layer0Asignations[54] = layer1
-    layer0Asignations[55] = esc
-    layer0Asignations[56] = kc.LGUI
-    layer0Asignations[57] = exclam_ap
-    layer0Asignations[58] = comilla_simple
-    layer0Asignations[59] = kc.ENTER
+    layer0Asignations[48] = comilla_simple  
+    layer0Asignations[49] = exclam_ap
+    layer0Asignations[50] = kc.LALT
+    layer0Asignations[51] = tildeInvertida
+    layer0Asignations[52] = temporalLayer1
+    layer0Asignations[53] = kc.SPACE        
+    layer0Asignations[54] = mas
+    layer0Asignations[55] = kc.LGUI
+    layer0Asignations[56] = kc.ENTER
+    layer0Asignations[57] = cCedilla
+    layer0Asignations[58] = tilde
+    layer0Asignations[59] = kc.ESCAPE
+
+
+
+
 
     layer1Asignations = [ noAsg]*keysNumber   
-
+    
+    layer1Asignations[0] = esc
     layer1Asignations[1] = kc.F1
     layer1Asignations[2] = kc.F2
     layer1Asignations[3] = kc.F3
@@ -109,9 +110,14 @@ def assignKeys ():
     layer1Asignations[8] = kc.F8
     layer1Asignations[9] = kc.F9
     layer1Asignations[10] = kc.F10
-    layer1Asignations[11] = kc.F11
-    layer1Asignations[23] = kc.F12
+    layer1Asignations[11] = kc.DELETE
+    layer1Asignations[12] = kc.TAB
+    layer1Asignations[22] = kc.F11
+    layer1Asignations[23] = noAsg
 
+    layer1Asignations[24] = kc.LSHIFT
+    layer1Asignations[34] = kc.F12
+    layer1Asignations[36] = kc.LCTRL
     
     layer1Asignations[13] = kc.INSERT    
     layer1Asignations[14] = kc.HOME    
@@ -119,7 +125,7 @@ def assignKeys ():
     layer1Asignations[25] = kc.DELETE    
     layer1Asignations[26] = kc.END    
     layer1Asignations[27] = kc.PGDOWN
-    layer1Asignations[22] = kc.PSCREEN
+    layer1Asignations[37] = kc.PSCREEN
 
     layer1Asignations[17] = kc.AUDIO_MUTE 
     layer1Asignations[29] = kc.AUDIO_VOL_UP 
@@ -129,23 +135,37 @@ def assignKeys ():
     layer1Asignations[42] = kc.MEDIA_NEXT_TRACK 
     
 
-    layer1Asignations[31] = kc.LEFT
-    layer1Asignations[20] = kc.UP
-    layer1Asignations[32] = kc.DOWN
+    layer1Asignations[30] = kc.LEFT
+    layer1Asignations[32] = kc.UP
+    layer1Asignations[31] = kc.DOWN
     layer1Asignations[33] = kc.RIGHT
-    layer1Asignations[50] = kc.APPLICATION
-    layer1Asignations[53] = goHome
-    layer1Asignations[54] = goHome
-    layer1Asignations[58] = kc.DELETE
+    layer1Asignations[47] = layer1
+    layer1Asignations[48] = noAsg
+    layer1Asignations[49] = noAsg
+    layer1Asignations[50] = kc.LALT
+    layer1Asignations[51] = noAsg
+    layer1Asignations[52] = goHome
+    layer1Asignations[53] = kc.SPACE
+
+
+    layer1Asignations[54] = kc.noAsg
+    layer1Asignations[55] = kc.LGUI
+    layer1Asignations[56] = kc.ENTER
+    layer1Asignations[57] = kc.noAsg
+    layer1Asignations[58] = kc.noAsg
+    layer1Asignations[59] = kc.APPLICATION
     
 
     layer2Asignations = [ noAsg]*keysNumber
-    layer2Asignations[53] = goHome
-    layer2Asignations[54] = goHome
+    layer2Asignations[47] = goHome
+    layer2Asignations[52] = goHome
+
+
+    print(KC.A)
 
     return  [
         layer0Asignations,#base
-        layer1Asignations,#nums and symbols
+        layer1Asignations,#navigation
         layer2Asignations
     ]
 

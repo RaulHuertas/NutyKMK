@@ -189,6 +189,7 @@ class KMKKeyboard:
 
     @debug_enabled.setter
     def debug_enabled(self, enabled: bool):
+        print("yyy")
         debug.enabled = enabled
 
     def pre_process_key(
@@ -335,10 +336,10 @@ class KMKKeyboard:
 
     def before_matrix_scan(self) -> None:
         for module in self.modules:
-            #try:
+            try:
                 module.before_matrix_scan(self)
-            #except Exception as err:
-            #    debug_error(module, 'before_matrix_scan', err)
+            except Exception as err:
+                debug_error(module, 'before_matrix_scan', err)
 
 
     def after_matrix_scan(self) -> None:

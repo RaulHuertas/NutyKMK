@@ -233,23 +233,8 @@ class Split(Module):
     def _check_if_split_connected(self):
         # I'm looking for a way how to recognize which connection is on and which one off
         # For now, I found that service name relation to having other CP device
-        if self._connection_count == 0:
-            return False
-        if self._connection_count == 2:
-            self._split_connected = True
-            return True
-
-        # Polling this takes some time so I check only if connection_count changed
-        if self._previous_connection_count == self._connection_count:
-            return self._split_connected
-
-        bleio_connection = self._ble.connections[0]._bleio_connection
-        connection_services = bleio_connection.discover_remote_services()
-        for service in connection_services:
-            if str(service.uuid).startswith("UUID('adaf0001"):
-                self._split_connected = True
-                return True
-        return False
+        
+        return self._uart.connected()
 
     def _initiator_scan(self):
         '''Scans for target device'''

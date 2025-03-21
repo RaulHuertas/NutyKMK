@@ -6,7 +6,7 @@ except ImportError:
 from collections import namedtuple
 from keypad import Event as KeyEvent
 
-from kmk.hid import  USBHID
+from kmk.hidusb import USBHID
 from kmk.keys import KC, Key
 from kmk.modules import Module
 from kmk.scanners.keypad import MatrixScanner
@@ -33,7 +33,7 @@ class Sandbox:
     active_layers = None
 
 
-class KMKKeyboard:
+class USBKB:
     #####
     # User-configurable
     keymap = []
@@ -45,6 +45,7 @@ class KMKKeyboard:
     matrix = None
 
     modules = []
+    extensions = []
     sandbox = Sandbox()
 
     #####
@@ -285,6 +286,7 @@ class KMKKeyboard:
     def _init_hid(self) -> None:
 
         self._hid_helper = USBHID
+
         self._hid_helper = self._hid_helper(**self._go_args)
         self._hid_send_enabled = True
 
@@ -332,14 +334,30 @@ class KMKKeyboard:
         if debug.enabled:
             debug('modules=', [_.__class__.__name__ for _ in self.modules])
 
+        for idx, ext in enumerate(self.extensions):
+            try:
+                ext.during_bootup(self)
+            except Exception as err:
+                debug_error(ext, 'during_bootup', err)
+                self.extensions[idx] = None
+
+        self.extensions[:] = [_ for _ in self.extensions if _]
+
+        if debug.enabled:
+            debug('extensions=', [_.__class__.__name__ for _ in self.extensions])
 
     def before_matrix_scan(self) -> None:
         for module in self.modules:
-            #try:
+            try:
                 module.before_matrix_scan(self)
-            #except Exception as err:
-            #    debug_error(module, 'before_matrix_scan', err)
+            except Exception as err:
+                debug_error(module, 'before_matrix_scan', err)
 
+        for ext in self.extensions:
+            try:
+                ext.before_matrix_scan(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'before_matrix_scan', err)
 
     def after_matrix_scan(self) -> None:
         for module in self.modules:
@@ -348,6 +366,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'after_matrix_scan', err)
 
+        for ext in self.extensions:
+            try:
+                ext.after_matrix_scan(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'after_matrix_scan', err)
 
     def before_hid_send(self) -> None:
         for module in self.modules:
@@ -356,6 +379,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'before_hid_send', err)
 
+        for ext in self.extensions:
+            try:
+                ext.before_hid_send(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'before_hid_send', err)
 
     def after_hid_send(self) -> None:
         for module in self.modules:
@@ -364,7 +392,13 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'after_hid_send', err)
 
+        for ext in self.extensions:
+            try:
+                ext.after_hid_send(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'after_hid_send', err)
 
+   
 
     def deinit(self) -> None:
         for module in self.modules:
@@ -373,6 +407,11 @@ class KMKKeyboard:
             except Exception as err:
                 debug_error(module, 'deinit', err)
 
+        for ext in self.extensions:
+            try:
+                ext.deinit(self.sandbox)
+            except Exception as err:
+                debug_error(ext, 'deinit', err)
 
     def go(self, **kwargs) -> None:
         try:
@@ -398,9 +437,12 @@ class KMKKeyboard:
 
     def _init(
         self,
+        
         **kwargs,
     ) -> None:
         self._go_args = kwargs
+        
+        self.secondary_hid_type = None
 
         if debug.enabled:
             debug('Initialising ', self)
@@ -410,11 +452,11 @@ class KMKKeyboard:
         self._init_coord_mapping()
         self.during_bootup()
 
-        if debug.enabled:
-            import gc
+        #if debug.enabled:
+        import gc
 
-            gc.collect()
-            debug('mem_info used:', gc.mem_alloc(), ' free:', gc.mem_free())
+        gc.collect()
+        debug('mem_info used:', gc.mem_alloc(), ' free:', gc.mem_free())
 
     def _main_loop(self) -> None:
         self.sandbox.active_layers = self.active_layers.copy()
@@ -456,9 +498,3 @@ class KMKKeyboard:
             self._send_hid()
 
         self.after_hid_send()
-
-        if self._trigger_powersave_enable:
-            self.powersave_enable()
-
-        if self._trigger_powersave_disable:
-            self.powersave_disable()
