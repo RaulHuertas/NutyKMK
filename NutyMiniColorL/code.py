@@ -2,8 +2,7 @@
 print("Starting on LEFT")
 
 import board
-testing = False
-
+testing = True
 
 def isItOn(cols, rows, keyIndex):
     nCol = len(cols)
@@ -65,8 +64,8 @@ def initKBUSB():
     keyboard.modules = [
         split, 
         USBFeedback(board.D0, 24,brightness=0.1),
-        HoldTap(),
-        MouseKeys(),
+        #HoldTap(),
+        #MouseKeys(),
         #Layers(i)
     ]
 

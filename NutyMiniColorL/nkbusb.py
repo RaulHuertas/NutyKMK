@@ -1,4 +1,4 @@
-from kmk.usbkb import  USBKB
+from kmk.kbusb import  KMKKeyboard
 
 from kmk.scanners.keypad import MatrixScanner
 from kmk.scanners import DiodeOrientation
@@ -19,9 +19,11 @@ ORANGE = (234,133,51)
 RED = (255, 0, 0)
 PURPLE = (180, 0, 255)
 WHITE = (255, 255, 255)
+MATCHA = (0, 255, 60)
 YELLOW = (128, 128, 0)
+PASTELMARRON = (241,235,225)
 
-PRIMARYCOLOR = (201,20, 20)
+PRIMARYCOLOR = MATCHA
 
 def paintRandom(strip, nLeds):
     import random
@@ -45,8 +47,8 @@ def lightShow(strip, nPixels, stageTime=0.15, nStages =10):
         strip.show()
         sleep(stageTime)
     
-class NKB_USB(USBKB):
-    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.COL2ROW):   
+class NKB_USB(KMKKeyboard):
+    def __init__(self, col_pins, row_pins, diode_orientation = DiodeOrientation.ROW2COL):
         # create and register the scanner
         self.matrix = MatrixScanner(
             # required arguments:
@@ -74,12 +76,8 @@ class USBFeedback(Layers):
         #print("self.effect:",self.effect)
 
     def saveNVM(self):
-        #print("start save")
-        #print(dir(self.nvm))
         toStore = self.brightnessStep.to_bytes(1,'little')+self.effect.to_bytes(1,'little')+self.speed.to_bytes(1,'little')
         nvm[0:3] =    toStore     #self.nvm.__setitem__(0,self.brightnessStep)
-        #self.nvm.__setitem__(1,self.effect)
-        #print("end save")
 
         #self.nvm[0] = self.brightnessStep
         #self.nvm[1] = self.effect   
@@ -90,13 +88,13 @@ class USBFeedback(Layers):
 
     def _applyEffect(self):
         if self.effect == 0:
-            self.fullyPaintAs(PRIMARYCOLOR)
+            self.fullyPaintAs(MATCHA)
         elif self.effect == 1:
             self.startRandomEffect()
         elif self.effect == 2:
-            self.fullyPaintAs(BLUE)
-        else:
             self.fullyPaintAs(WHITE)
+        else:
+            self.fullyPaintAs(PASTELMARRON)
         
         pass
 

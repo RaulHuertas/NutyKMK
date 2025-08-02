@@ -19,9 +19,11 @@ ORANGE = (234,133,51)
 RED = (255, 0, 0)
 PURPLE = (180, 0, 255)
 WHITE = (255, 255, 255)
+MATCHA = (0, 255, 60)
 YELLOW = (128, 128, 0)
+PASTELMARRON = (241,235,225)
 
-PRIMARYCOLOR = (201,20, 20)
+PRIMARYCOLOR = MATCHA
 
 def paintRandom(strip, nLeds):
     import random
@@ -86,13 +88,13 @@ class USBFeedback(Layers):
 
     def _applyEffect(self):
         if self.effect == 0:
-            self.fullyPaintAs(PRIMARYCOLOR)
+            self.fullyPaintAs(MATCHA)
         elif self.effect == 1:
             self.startRandomEffect()
         elif self.effect == 2:
-            self.fullyPaintAs(BLUE)
-        else:
             self.fullyPaintAs(WHITE)
+        else:
+            self.fullyPaintAs(PASTELMARRON)
         
         pass
 
